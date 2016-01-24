@@ -10,6 +10,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post('/hello', function (req, res) {
   var userName = req.body.user_name;
   var botPayload = {
+    response_type: "in_channel",
     text : 'Hello, ' + userName + '!'
   };
 

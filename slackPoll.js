@@ -57,7 +57,7 @@ app.post('/hello', function (req, res) {
   //post reactions 1,2,3
   console.log(req.body);
   console.log('Ping-ed!');
-  //var userName = req.body.user_name;
+  var userName = req.body.user_name;
   var text = req.body.text;
   var response = getParams(text);
 

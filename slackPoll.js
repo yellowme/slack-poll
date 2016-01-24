@@ -8,6 +8,8 @@ var port = process.env.PORT || 3000;
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post('/hello', function (req, res) {
+  console.log(req.body);
+  console.log('Ping-ed!');
   var userName = req.body.user_name;
   var botPayload = {
     response_type: "in_channel",
@@ -20,7 +22,6 @@ app.post('/hello', function (req, res) {
   } else {
     return res.status(200).end();
   }
-  console.log('Ping-ed!');
 })
  
 var server = app.listen(port, function () {

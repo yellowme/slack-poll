@@ -1,7 +1,8 @@
 var express = require('express')
 var bodyParser = require('body-parser');
-var app = express()
 
+var app = express()
+var port = process.env.PORT || 3000;
 
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -21,7 +22,7 @@ app.post('/hello', function (req, res) {
   console.log('Ping-ed!');
 })
  
-var server = app.listen(3000, function () {
+var server = app.listen(port, function () {
 
   var port = server.address().port
 

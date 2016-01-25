@@ -72,15 +72,16 @@ app.post('/hello', function (req, res) {
     text : response[0]
   };
   console.log("text= " +response[1]);
-  var smResponse = searchMessages({token:token, query:response[1], sort: 'timestamp', from:'PollerX'}, function (result) {
-    console.log(result);
-    for (i=response[2].length-1; i>=0; i--) {
-      addReaction(emojis[i], result[0], result[1]);
-    }
-  });
+
   // avoid infinite loop
   if (userName !== 'slackbot') {
     return res.status(200).json(botPayload);
+    var smResponse = searchMessages({token:token, query:response[1], sort: 'timestamp', from:'PollerX'}, function (result) {
+      console.log(result);
+      for (i=response[2].length-1; i>=0; i--) {
+        addReaction(emojis[i], result[0], result[1]);
+      }
+    });
   } else {
     return res.status(200).end();
   }

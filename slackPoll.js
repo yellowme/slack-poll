@@ -77,7 +77,7 @@ app.post('/hello', function (req, res) {
     text : response[0]
   };
   console.log("text= " +response[1]);
-  var smResponse = searchMessages({token:token, query:response[1]}, function (result) {
+  var smResponse = searchMessages({token:token, query:response[1], sort: 'timestamp'}, function (result) {
     console.log(result);
     for (i=response[2].length-1; i>=0; i--) {
       addReaction(emojis[i], result[0], result[1]);

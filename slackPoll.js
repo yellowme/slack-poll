@@ -62,11 +62,6 @@ function addReaction (num, channel, ts) {
 }
 
 app.post('/hello', function (req, res) {
-  //get text
-  //split text
-  //return as mcqs
-  //search messages
-  //post reactions 1,2,3
   console.log(req.body);
   console.log('Ping-ed!');
   var userName = req.body.user_name;
@@ -77,7 +72,7 @@ app.post('/hello', function (req, res) {
     text : response[0]
   };
   console.log("text= " +response[1]);
-  var smResponse = searchMessages({token:token, query:response[1], sort: 'timestamp'}, function (result) {
+  var smResponse = searchMessages({token:token, query:response[1], sort: 'timestamp', from:'PollerX'}, function (result) {
     console.log(result);
     for (i=response[2].length-1; i>=0; i--) {
       addReaction(emojis[i], result[0], result[1]);

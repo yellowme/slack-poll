@@ -10,34 +10,46 @@ app.use(bodyParser.urlencoded({ extended: true }));
 var token = 'xoxp-10646294659-10653225857-19287466564-d7da7e5682'
 var propertiesObject = { token:token, query:'Who wants to go to lunch now?' };
 
+var emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
 function getParams(string){
+
+  //replace single quote with double quote bcos single quote is retained when forming final text
+  string = string.replace(/'/g, '"');
+
+  //regex to find matches for poll options
   var regExp = /\[(.*?)\]/g;
   var matches = (string).match(regExp);
-  var trimmedString = string.replace(regExp, '').trim();
+
+  //trim string to remove option from question
+  var trimmedString = string.replace(regExp, '');
   for (i=0; i<matches.length; i++) {
     matches[i] = matches[i].replace(/[\[\]']+/g,'')
   }
   console.log(trimmedString);
   console.log(matches);
+
+  //forming the final questions with option
   var text = '' + trimmedString + '\n'
   for (i =0; i<matches.length; i++) {
     var num = i+1;
     text = text + num + '. ' + matches[i] + '\n';
   }
-  return text;
+
+  //return final question with options, and the question alone for message search
+  return [text, trimmedString, matches];
 }
 
 
-//getParams("who wants lunch? [yes] [no]");
 
 
-function searchMessages(query) {
+
+function searchMessages(query, callback) {
   request({url:"https://slack.com/api/search.messages", qs:query}, function(err, response, body) {
     if(err) { console.log(err); return; }
     var channel = JSON.parse(response.body).messages.matches[0].channel.id;
     var ts = JSON.parse(response.body).messages.matches[0].ts;
-    return [channel,ts]
+    callback([channel,ts]);
   });
 }
 
@@ -60,12 +72,17 @@ app.post('/hello', function (req, res) {
   var userName = req.body.user_name;
   var text = req.body.text;
   var response = getParams(text);
-
   var botPayload = {
     response_type: "in_channel",
-    text : response
+    text : response[0]
   };
-
+  console.log("text= " +response[1]);
+  var smResponse = searchMessages({token:token, query:response[1]}, function (result) {
+    console.log(result);
+    for (i=response[2].length-1; i>=0; i--) {
+      addReaction(emojis[i], result[0], result[1]);
+    }
+  });
   // avoid infinite loop
   if (userName !== 'slackbot') {
     return res.status(200).json(botPayload);

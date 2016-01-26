@@ -79,12 +79,15 @@ app.post('/hello', function (req, res) {
     res.status(200).json(botPayload);
 
     //find message after returning response---> how to run this after return
-    var smResponse = searchMessages({token:token, query:response[1], sort: 'timestamp', from:'PollerX'}, function (result) {
-      console.log(result);
-      for (i=response[2].length-1; i>=0; i--) {
-        addReaction(emojis[i], result[0], result[1]);
-      }
-    });
+    setTimeout( function () {
+      var smResponse = searchMessages({token:token, query:response[1], sort: 'timestamp', from:'PollerX'}, function (result) {
+        console.log(result);
+        for (i=response[2].length-1; i>=0; i--) {
+          addReaction(emojis[i], result[0], result[1]);
+        }
+      });
+    }, 3000);
+
     return;
   } else {
     return res.status(200).end();

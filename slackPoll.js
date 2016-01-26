@@ -84,7 +84,7 @@ app.post('/hello', function (req, res) {
           addReaction(emojis[i], result[0], result[1]);
         }
       });
-    }, 6000);
+    }, 10000);
 
     return;
   } else {

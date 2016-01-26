@@ -2,7 +2,7 @@ var express = require('express')
 var bodyParser = require('body-parser');
 var request = require('request');
 
-var app = express()
+var app = express();
 var port = process.env.PORT || 3000;
 
 // body parser middleware
@@ -39,8 +39,6 @@ function getParams(string){
   //return final question with options, and the question alone for message search
   return [text, trimmedString, matches];
 }
-
-
 
 
 
@@ -86,7 +84,7 @@ app.post('/hello', function (req, res) {
           addReaction(emojis[i], result[0], result[1]);
         }
       });
-    }, 3000);
+    }, 6000);
 
     return;
   } else {

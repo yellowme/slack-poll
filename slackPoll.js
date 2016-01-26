@@ -47,6 +47,7 @@ function getParams(string){
 function searchMessages(query, callback) {
   request({url:"https://slack.com/api/search.messages", qs:query}, function(err, response, body) {
     if(err) { console.log(err); return; }
+    console.log(response.body);
     var channel = JSON.parse(response.body).messages.matches[0].channel.id;
     var ts = JSON.parse(response.body).messages.matches[0].ts;
     callback([channel,ts]);
@@ -84,7 +85,7 @@ app.post('/hello', function (req, res) {
         addReaction(emojis[i], result[0], result[1]);
       }
     });
-    return ;
+    return;
   } else {
     return res.status(200).end();
   }

@@ -80,7 +80,7 @@ app.post('/hello', function (req, res) {
     token: token,
     text : response[0],
     username: 'PollerX',
-    icon_emoji: 'shit'
+    icon_emoji: ':shit:'
   };
   var pmResponse = postMessage(botPayload, function (result) {
     console.log(result);

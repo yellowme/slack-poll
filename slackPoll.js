@@ -78,7 +78,9 @@ app.post('/hello', function (req, res) {
   var botPayload = {
     channel: channel,
     token: token,
-    text : response[0]
+    text : response[0],
+    username: 'PollerX',
+    icon_emoji: 'shit'
   };
   var pmResponse = postMessage(botPayload, function (result) {
     console.log(result);

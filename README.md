@@ -32,5 +32,5 @@ This will actually push your app to Heroku.
 Once done, add a slash command app integration into your slack group. For the url, use:  
 `your-heroku-url/hello`
 
-For further clarifications, you can follow the tutorial which I followed [here](https://toolbelt.heroku.com/).
+For further clarifications, you can follow the tutorial which I followed [here](http://blog.npmjs.org/post/128237577345/how-to-build-a-slackbot-deploy-an-app-to-heroku).
 

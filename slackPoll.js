@@ -51,15 +51,6 @@ function postMessage(payload,callback) {
   });
 }
 
-function searchMessages(query, callback) {
-  request({url:"https://slack.com/api/search.messages", qs:query}, function(err, response, body) {
-    if(err) { console.log(err); return; }
-    console.log(response.body);
-    var channel = JSON.parse(response.body).messages.matches[0].channel.id;
-    var ts = JSON.parse(response.body).messages.matches[0].ts;
-    callback([channel,ts]);
-  });
-}
 
 function addReaction (num, channel, ts) {
   var params = { token:'xoxp-10646294659-10653225857-19287466564-d7da7e5682', name:num, channel:channel, timestamp:ts };

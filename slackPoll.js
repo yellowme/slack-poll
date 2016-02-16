@@ -80,9 +80,7 @@ app.post('/hello', function (req, res) {
   // avoid infinite loop
   if (userName !== 'slackbot') {
     return res.status(200).end();
-  } else {
-    return res.status(200).end();
-  }
+  } 
 })
  
 var server = app.listen(port, function () {

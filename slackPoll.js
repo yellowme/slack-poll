@@ -8,32 +8,25 @@ var port = process.env.PORT || 3000;
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 var token = 'xoxp-10646294659-10653225857-19287466564-d7da7e5682'
-var propertiesObject = { token:token, query:'Who wants to go to lunch now?' };
-
 var emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
 function getParams(string){
-
   //replace single quote with double quote bcos single quote is retained when forming final text
   string = string.replace(/'/g, '"');
-
   //regex to find matches for poll options
   var regExp = /\[(.*?)\]/g;
   var matches = (string).match(regExp);
-
   //trim string to remove option from question
   var trimmedString = string.replace(regExp, '');
   for (i=0; i<matches.length; i++) {
     matches[i] = matches[i].replace(/[\[\]']+/g,'')
   }
-
   //forming the final questions with option
   var text = '' + trimmedString + '\n'
   for (i =0; i<matches.length; i++) {
     var num = i+1;
     text = text + num + '. ' + matches[i] + '\n';
   }
-
   //return final question with options, and the question alone for message search
   return [text, trimmedString, matches];
 }
@@ -84,9 +77,7 @@ app.post('/hello', function (req, res) {
 })
  
 var server = app.listen(port, function () {
-
   var port = server.address().port
-
   console.log("Example app listening at port %s", port)
 
 })

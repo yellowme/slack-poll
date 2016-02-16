@@ -26,8 +26,6 @@ function getParams(string){
   for (i=0; i<matches.length; i++) {
     matches[i] = matches[i].replace(/[\[\]']+/g,'')
   }
-  console.log(trimmedString);
-  console.log(matches);
 
   //forming the final questions with option
   var text = '' + trimmedString + '\n'

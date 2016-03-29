@@ -7,7 +7,7 @@ var port = process.env.PORT || 3000;
 
 // body parser middleware
 app.use(bodyParser.urlencoded({ extended: true }));
-var token = 'xoxp-10646294659-10653225857-19287466564-d7da7e5682'
+var token = process.env.SLACK_TOKEN
 var emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 
 function getParams(string){
@@ -44,7 +44,7 @@ function postMessage(payload,callback) {
 
 
 function addReaction (num, channel, ts) {
-  var params = { token:'xoxp-10646294659-10653225857-19287466564-d7da7e5682', name:num, channel:channel, timestamp:ts };
+  var params = { token:process.env.SLACK_TOKEN, name:num, channel:channel, timestamp:ts };
   request({url:"https://slack.com/api/reactions.add", qs:params}, function(err, response, body) {
     if(err) { console.log(err); return; }
     console.log(response.body);

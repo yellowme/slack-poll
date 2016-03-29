@@ -52,7 +52,7 @@ function addReaction (num, channel, ts) {
   });
 }
 
-app.post('/hello', function (req, res) {
+app.post('/poll', function (req, res) {
   console.log(req.body);
   var userName = req.body.user_name;
   var channel = req.body.channel_id;

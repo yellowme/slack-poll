@@ -40,7 +40,8 @@ This will actually push your app to Heroku.
 Once done, add a slash command app integration into your slack group. For the url, use:  
 `your-heroku-url/poll`
 
-Replace `var  token` with your own slack token.
+Replace `var  token` with your own slack token from your .env file.
+Include the token in your heroku app as well.
 
 For further clarifications on hosting it on heroku, you can follow the tutorial which I followed [here](http://blog.npmjs.org/post/128237577345/how-to-build-a-slackbot-deploy-an-app-to-heroku).
 

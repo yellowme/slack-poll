@@ -63,7 +63,7 @@ app.post('/poll', function (req, res) {
     token: token,
     text : response[0],
     username: 'PollerX',
-    icon_emoji: ':shit:'
+    icon_emoji: ':raising_hand:'
   };
   var pmResponse = postMessage(botPayload, function (result) {
     for (var i=response[2].length-1; i>=0; i--) {

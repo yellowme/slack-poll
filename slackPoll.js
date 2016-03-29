@@ -2,6 +2,8 @@ var express = require('express')
 var bodyParser = require('body-parser');
 var request = require('request');
 
+require('dotenv').config();
+
 var app = express();
 var port = process.env.PORT || 3000;
 
@@ -15,14 +17,14 @@ function getParams(string){
   string = string.replace(/'/g, '"');
   //regex to find matches for poll options
   var regExp = /\[(.*?)\]/g;
-  var matches = (string).match(regExp);
+  var matches = string.match(regExp);
   //trim string to remove option from question
   var trimmedString = string.replace(regExp, '');
   for (i=0; i<matches.length; i++) {
     matches[i] = matches[i].replace(/[\[\]']+/g,'')
   }
   //forming the final questions with option
-  var text = '' + trimmedString + '\n'
+  var text = trimmedString + '\n'
   for (i =0; i<matches.length; i++) {
     var num = i+1;
     text = text + num + '. ' + matches[i] + '\n';
@@ -47,7 +49,6 @@ function addReaction (num, channel, ts) {
   var params = { token:process.env.SLACK_TOKEN, name:num, channel:channel, timestamp:ts };
   request({url:"https://slack.com/api/reactions.add", qs:params}, function(err, response, body) {
     if(err) { console.log(err); return; }
-    console.log(response.body);
   });
 }
 
@@ -65,7 +66,6 @@ app.post('/hello', function (req, res) {
     icon_emoji: ':shit:'
   };
   var pmResponse = postMessage(botPayload, function (result) {
-    console.log(result);
     for (var i=response[2].length-1; i>=0; i--) {
       addReaction(emojis[i], result[0], result[1]);
     }    

@@ -38,7 +38,7 @@ git push heroku master
 This will actually push your app to Heroku.  
 
 Once done, add a slash command app integration into your slack group. For the url, use:  
-`your-heroku-url/hello`
+`your-heroku-url/poll`
 
 Replace `var  token` with your own slack token.
 

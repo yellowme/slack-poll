@@ -45,8 +45,8 @@ function postMessage(payload,callback) {
 }
 
 
-function addReaction (num, channel, ts) {
-  var params = { token:process.env.SLACK_TOKEN, name:num, channel:channel, timestamp:ts };
+function addReaction (name, channel, timestamp) {
+  var params = { token, name, channel, timestamp };
   console.log(params);
   request({url:"https://slack.com/api/reactions.add", qs:params}, function(err, response, body) {
     if(err) { console.log(err); return; }
@@ -55,6 +55,7 @@ function addReaction (num, channel, ts) {
 
 app.post('/poll', function (req, res) {
   console.log(req.body);
+  console.log('TOKEN--->',token);
   var userName = req.body.user_name;
   var channel = req.body.channel_id;
   var text = req.body.text;

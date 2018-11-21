@@ -49,6 +49,7 @@ function addReaction (name, channel, timestamp) {
   console.log('Reaction->>>',params);
   request({url:"https://slack.com/api/reactions.add", qs:params}, function(err, response, body) {
     if(err) { console.log(err); return; }
+    console.log('quepaso?',response);
   });
 }
 

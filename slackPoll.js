@@ -62,7 +62,7 @@ app.post('/poll', function (req, res) {
     channel: channel,
     token: token,
     text : response[0],
-    username: userName,
+    username: 'Mr Poller Yellow',
     icon_emoji: ':raising_hand:'
   };
 

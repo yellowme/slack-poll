@@ -35,10 +35,8 @@ function getParams(string){
 
 
 function postMessage(payload,callback) {
-  console.log('payload->>>>>>>',payload);
   request({url:"https://slack.com/api/chat.postMessage", qs:payload}, function(err, response, body) {
     if(err) { console.log('err-->', err); return; }
-    console.log('response.body-->',response.body);
     var channel = JSON.parse(response.body).channel;
     var ts = JSON.parse(response.body).ts;
     callback([channel,ts]);
@@ -48,15 +46,13 @@ function postMessage(payload,callback) {
 
 function addReaction (name, channel, timestamp) {
   var params = { token, name, channel, timestamp };
-  console.log(params);
+  console.log('Reaction->>>',params);
   request({url:"https://slack.com/api/reactions.add", qs:params}, function(err, response, body) {
     if(err) { console.log(err); return; }
   });
 }
 
 app.post('/poll', function (req, res) {
-  console.log(req.body);
-  console.log('TOKEN--->',token);
   var userName = req.body.user_name;
   var channel = req.body.channel_id;
   var text = req.body.text;
@@ -68,8 +64,6 @@ app.post('/poll', function (req, res) {
     username: userName,
     icon_emoji: ':raising_hand:'
   };
-
-  console.log('response from request->>', response);
 
   var pmResponse = postMessage(botPayload, function (result) {
     console.log('result from postMessage-->',result);

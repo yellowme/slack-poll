@@ -35,6 +35,7 @@ function getParams(string){
 
 
 function postMessage(payload,callback) {
+  console.log('payload->>>>>>>',payload);
   request({url:"https://slack.com/api/chat.postMessage", qs:payload}, function(err, response, body) {
     if(err) { console.log('err-->', err); return; }
     console.log('response.body-->',response.body);

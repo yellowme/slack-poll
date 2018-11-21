@@ -47,6 +47,7 @@ function postMessage(payload,callback) {
 
 function addReaction (num, channel, ts) {
   var params = { token:process.env.SLACK_TOKEN, name:num, channel:channel, timestamp:ts };
+  console.log(params);
   request({url:"https://slack.com/api/reactions.add", qs:params}, function(err, response, body) {
     if(err) { console.log(err); return; }
   });
@@ -62,20 +63,20 @@ app.post('/poll', function (req, res) {
     channel: channel,
     token: token,
     text : response[0],
-    username: 'PollerX',
+    username: userName,
     icon_emoji: ':raising_hand:'
   };
   var pmResponse = postMessage(botPayload, function (result) {
     for (var i=response[2].length-1; i>=0; i--) {
       addReaction(emojis[i], result[0], result[1]);
-    }    
+    }
   });
   // avoid infinite loop
   if (userName !== 'slackbot') {
     return res.status(200).end();
-  } 
+  }
 })
- 
+
 var server = app.listen(port, function () {
   var port = server.address().port
   console.log("Example app listening at port %s", port)

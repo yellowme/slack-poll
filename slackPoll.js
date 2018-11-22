@@ -61,7 +61,37 @@ app.post('/poll', function (req, res) {
     channel: channel,
     token: token,
     text : response[0],
-    username: 'mr_yellow',
+    attachments: [
+        {
+            text: "Choose a game to play",
+            fallback: "You are unable to choose a game",
+            callback_id: "wopr_game",
+            color: "#3AA3E3",
+            attachment_type: "default",
+            actions: [
+                {
+                    "name": "game",
+                    "text": "Chess",
+                    "type": "button",
+                    "value": "chess"
+                },
+                {
+                    "name": "game",
+                    "text": "Falken's Maze",
+                    "type": "button",
+                    "value": "maze"
+                },
+                {
+                    "name": "game",
+                    "text": "Thermonuclear War",
+                    "style": "danger",
+                    "type": "button",
+                    "value": "war"
+                }
+            ]
+        }
+    ],
+    username: 'Mr Yellow',
     icon_emoji: ':raising_hand:'
   };
 

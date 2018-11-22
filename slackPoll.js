@@ -37,7 +37,7 @@ function getParams(string){
 function postMessage(payload,callback) {
   request({url:"https://slack.com/api/chat.postMessage", qs:payload}, function(err, response, body) {
     if(err) { console.log('err-->', err); return; }
-    console.log('response for create ->', response);
+    console.log('response for create ->', response.body);
     var channel = JSON.parse(response.body).channel;
     var ts = JSON.parse(response.body).ts;
     callback([channel,ts]);
@@ -53,6 +53,36 @@ function addReaction (name, channel, timestamp) {
   });
 }
 
+var attachments = [
+{
+    text: 'Choose a game to play',
+    fallback: 'You are unable to choose a game',
+    callback_id: 'slack_poll',
+    color: '#EFD213',
+    attachment_type: 'default',
+    actions: [
+    {
+      name: 'poll',
+      text: '1',
+      type: 'button',
+      value: '1'
+    },
+    {
+      name: 'poll',
+      text: '2',
+      type: 'button',
+      value: '2'
+    },
+    {
+      name: 'poll',
+      text: '3',
+      type: 'button',
+      value: '3'
+    }
+    ]
+}
+];
+
 app.post('/poll', function (req, res) {
   var userName = req.body.user_name;
   var channel = req.body.channel_id;
@@ -62,50 +92,27 @@ app.post('/poll', function (req, res) {
     channel: channel,
     token: token,
     text : response[0],
-    attachments: [
-        {
-            text: "Choose a game to play",
-            fallback: "You are unable to choose a game",
-            callback_id: "wopr_game",
-            color: "#3AA3E3",
-            attachment_type: "default",
-            actions: [
-                {
-                    "name": "game",
-                    "text": "Chess",
-                    "type": "button",
-                    "value": "chess"
-                },
-                {
-                    "name": "game",
-                    "text": "Falken's Maze",
-                    "type": "button",
-                    "value": "maze"
-                },
-                {
-                    "name": "game",
-                    "text": "Thermonuclear War",
-                    "style": "danger",
-                    "type": "button",
-                    "value": "war"
-                }
-            ]
-        }
-    ],
+    attachments: JSON.stringify(attachments),
     username: 'Mr Yellow',
     icon_emoji: ':raising_hand:'
   };
 
+  /*
   var pmResponse = postMessage(botPayload, function (result) {
     // console.log('result from postMessage-->',result);
     for (var i=response[2].length-1; i>=0; i--) {
       addReaction(emojis[i], result[0], result[1]);
     }
   });
+  */
   // avoid infinite loop
   if (userName !== 'slackbot') {
     return res.status(200).end();
   }
+})
+
+app.post('/poll/response', function (req, res) {
+  console.log('req.body-->', JSON.parse(response.body));
 })
 
 var server = app.listen(port, function () {

@@ -49,7 +49,6 @@ function addReaction (name, channel, timestamp) {
   console.log('Reaction->>>',params);
   request({url:"https://slack.com/api/reactions.add", qs:params}, function(err, response, body) {
     if(err) { console.log(err); return; }
-    console.log('quepaso?',response);
   });
 }
 
@@ -62,7 +61,7 @@ app.post('/poll', function (req, res) {
     channel: channel,
     token: token,
     text : response[0],
-    username: 'Mr Poller Yellow',
+    username: 'mr_yellow',
     icon_emoji: ':raising_hand:'
   };
 

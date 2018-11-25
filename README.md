@@ -17,7 +17,9 @@ To integrate into your Slack workspace, you will need to create a [Slack App](ht
 - Slash Commands (for the /poll Endpoint)
 - OAuth & Permissions > Scopes > Add permissions [`chat:write:bot`, `commands`, `reactions:write`]
 
-Initialize `.env` file with `DATABASE_URL` (if SQLite ignore `DATABASE_URL`)
+Initialize `.env` file with
+- `DATABASE_URL` (if SQLite ignore `DATABASE_URL`)
+- `SLACK_VERIFICATION_TOKEN`, `SLACK_VERIFICATION_TOKEN` from your SlackApp
 
 ```
 cp .env.example .env

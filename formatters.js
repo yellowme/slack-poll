@@ -1,9 +1,3 @@
-const utils = require('./utils')
-
-function cleanDoubleQuotes (text) {
-  return utils.replaceAll(utils.replaceAll(text, '\u201D', '"'), '\u201C', '"')
-}
-
 function splitItems (text) {
   const rawOptions = text.split('"').filter(s => s !== '' && s !== ' ')
   return {
@@ -13,6 +7,5 @@ function splitItems (text) {
 }
 
 module.exports = {
-  cleanDoubleQuotes,
   splitItems
 }

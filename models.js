@@ -2,15 +2,16 @@ const Sequelize = require('sequelize')
 
 const db = new Sequelize('yellowpoll', null, null, {
   dialect: 'sqlite',
-  storage: './yellowpoll.sqlite',
-  logging: false
+  storage: './yellowpoll.sqlite'
 })
 
 const PollModel = db.define('polls', {
   text: { type: Sequelize.STRING },
   titleTs: { type: Sequelize.STRING },
   optionsTs: { type: Sequelize.STRING },
-  buttonsTs: { type: Sequelize.STRING }
+  buttonsTs: { type: Sequelize.STRING },
+  buttons2Ts: { type: Sequelize.STRING },
+  buttonDeleteTs: { type: Sequelize.STRING }
 }, {
   timestamps: true
 })

@@ -3,11 +3,12 @@ const config = require('./config')
 const formatters = require('./formatters')
 const slack = require('./slack')
 const models = require('./models')
+const utils = require('./utils')
 
 const port = config.PORT
 const validationToken = config.SLACK_VERIFICATION_TOKEN
 
-const emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten']
+const emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'keycap_ten']
 
 const app = express()
 
@@ -19,8 +20,27 @@ app.post('/poll', async (req, res) => {
     return res.status(403).send('Request is not signed correctly!')
   }
 
-  const text = formatters.cleanDoubleQuotes(req.body.text)
+  const text = utils.cleanDoubleQuotes(req.body.text)
   const items = formatters.splitItems(text)
+
+  if (items.options.length > 10) {
+    await slack.sendPollMessage({
+      attachments: [
+        {
+          fallback: 'Sorry, creating polls with more than 10 options is not supported yet',
+          title: 'Sorry :sweat:',
+          text: 'Creating polls with more than 10 options is not supported yet',
+          color: '#FF0D00',
+          attachment_type: 'default'
+        }
+      ],
+      channel: req.body.channel_id,
+      username: 'Yellow Poll'
+    })
+
+    return res.status(200).send()
+  }
+
   const pollTitle = `${items.question}\n\n`
   const pollOptions = items.options.reduce((text, option, index) => (
     `${text}:${emojis[index]}: ${option} \n\n`
@@ -70,12 +90,55 @@ app.post('/poll', async (req, res) => {
           color: '#ffd100',
           attachment_type: 'default',
           actions: [
-            ...items.options.map((option, index) => ({
+            ...items.options.slice(0, 5).map((option, index) => ({
               name: `${option}-${index}`,
               text: `:${emojis[index]}:`,
               type: 'button',
               value: `${option}-${index}`
-            })),
+            }))
+          ]
+        }
+      ],
+      channel: req.body.channel_id,
+      username: 'Yellow Poll'
+    })
+
+    const buttons2Response = items.options.length > 5
+      ? await slack.sendPollMessage({
+        attachments: [
+          {
+            fallback: '',
+            title: '',
+            callback_id: currentPoll.id,
+            color: '#ffd100',
+            attachment_type: 'default',
+            actions: [
+              ...items.options.slice(5, 10).map((option, _index) => {
+                const index = _index + 5
+                return {
+                  name: `${option}-${index}`,
+                  text: `:${emojis[index]}:`,
+                  type: 'button',
+                  value: `${option}-${index}`
+                }
+              })
+            ]
+          }
+        ],
+        channel: req.body.channel_id,
+        username: 'Yellow Poll'
+      })
+      : {}
+
+    const buttonDeleteResponse = await slack.sendPollMessage({
+      attachments: [
+        {
+          fallback: '',
+          title: '',
+          callback_id: currentPoll.id,
+          color: '#ffd100',
+          attachment_type: 'default',
+          actions: [
             {
               name: 'cancel',
               text: 'Delete Poll',
@@ -100,7 +163,9 @@ app.post('/poll', async (req, res) => {
       text: req.body.text,
       titleTs: titleResponse.ts,
       optionsTs: optionsResponse.ts,
-      buttonsTs: buttonsResponse.ts
+      buttonsTs: buttonsResponse.ts,
+      buttons2Ts: buttons2Response.ts,
+      buttonDeleteTs: buttonDeleteResponse.ts
     }, {
       where: {
         id: currentPoll.id
@@ -147,6 +212,14 @@ app.post('/hook', async (req, res) => {
     if (body.actions[0].value === 'cancel-null') {
       await slack.deletePollMessage({
         channel: body.channel.id,
+        ts: currentPoll.buttonDeleteTs
+      })
+      await slack.deletePollMessage({
+        channel: body.channel.id,
+        ts: currentPoll.buttons2Ts
+      })
+      await slack.deletePollMessage({
+        channel: body.channel.id,
         ts: currentPoll.buttonsTs
       })
       await slack.deletePollMessage({
@@ -184,7 +257,7 @@ app.post('/hook', async (req, res) => {
       raw: true
     })
 
-    const text = formatters.cleanDoubleQuotes(currentPoll.text)
+    const text = utils.cleanDoubleQuotes(currentPoll.text)
     const items = formatters.splitItems(text)
 
     const pollOptions = items.options.reduce((text, option, index) => {

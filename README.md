@@ -11,6 +11,12 @@ Slack bot that helps users to do polling and allows users.
 
 ## Instalation
 
+To integrate into your Slack workspace, you will need to create a [Slack App](https://api.slack.com/apps) and configure
+
+- Interactive Components > Interactivity > Request URL (for the /hook Endpoint)
+- Slash Commands (for the /poll Endpoint)
+- OAuth & Permissions > Scopes > Add permissions [`chat:write:bot`, `commands`, `reactions:write`]
+
 Initialize `.env` file with `DATABASE_URL` (if SQLite ignore `DATABASE_URL`)
 
 ```

@@ -1,5 +1,7 @@
 # SlackPoll
-Slack bot that helps users to do polling and allows users to vote through emoji reactions.
+Slack bot that helps users to do polling and allows users.
+
+![SlackPoll](/static/sample.png)
 
 ## Usage
 
@@ -9,19 +11,7 @@ Slack bot that helps users to do polling and allows users to vote through emoji 
 
 ## Instalation
 
-### With SQLite
-
-Initialize `yellowpoll.sqlite` and `.env` file
-
-```
-cp .env.example .env
-cp yellowpoll.sqlite.example yellowpoll.sqlite
-npm start
-```
-
-### With PostgreSQL, MySQL, MariaDB, etc
-
-Initialize `.env` file with `DATABASE_URL`
+Initialize `.env` file with `DATABASE_URL` (if SQLite ignore `DATABASE_URL`)
 
 ```
 cp .env.example .env

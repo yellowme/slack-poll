@@ -1,9 +1,12 @@
+const config = require('./config')
 const Sequelize = require('sequelize')
 
-const db = new Sequelize('yellowpoll', null, null, {
-  dialect: 'sqlite',
-  storage: './yellowpoll.sqlite'
-})
+const db = config.DATABASE_URL
+  ? new Sequelize(config.DATABASE_URL)
+  : new Sequelize('yellowpoll', null, null, {
+    dialect: 'sqlite',
+    storage: './yellowpoll.sqlite'
+  })
 
 const PollModel = db.define('polls', {
   text: { type: Sequelize.STRING },
@@ -23,6 +26,8 @@ const PollAnswerModel = db.define('poll_answers', {
 }, {
   timestamps: true
 })
+
+db.sync()
 
 PollAnswerModel.belongsTo(PollModel)
 

@@ -4,6 +4,7 @@ dotenv.config({ silent: true })
 
 const {
   PORT = 3000,
+  DATABASE_URL,
   SLACK_CLIENT_ID,
   SLACK_CLIENT_SECRET,
   SLACK_SIGNING_SECRET,
@@ -27,6 +28,7 @@ Object.keys(defaults).forEach((key) => {
 
 module.exports = {
   PORT,
+  DATABASE_URL,
   SLACK_CLIENT_ID,
   SLACK_CLIENT_SECRET,
   SLACK_SIGNING_SECRET,

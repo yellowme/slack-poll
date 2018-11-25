@@ -11,7 +11,7 @@ Slack bot that helps users to do polling and allows users to vote through emoji 
 
 ### With SQLite
 
-Initialize `yellowpoll.sqlite` and `.env` files
+Initialize `yellowpoll.sqlite` and `.env` file
 
 ```
 cp .env.example .env
@@ -21,7 +21,7 @@ npm start
 
 ### With PostgreSQL, MySQL, MariaDB, etc
 
-Initialize `yellowpoll.sqlite` and `.env` files
+Initialize `.env` file with `DATABASE_URL`
 
 ```
 cp .env.example .env

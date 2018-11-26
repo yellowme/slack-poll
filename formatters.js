@@ -6,6 +6,27 @@ function splitItems (text) {
   }
 }
 
+function pollOptionsString (items, emojis) {
+  return items.options.reduce((text, option, index) => (
+    `${text}:${emojis[index]}: ${option} \n\n`
+  ), '')
+}
+
+function pollEnhancedOptionsString (items, currentPollAnswers, emojis) {
+  return items.options.reduce((text, option, index) => {
+    const answerValue = `${option}-${index}`
+    const allUserAnswers = currentPollAnswers.filter(cpa => cpa.answer === answerValue)
+    const usernamesString = allUserAnswers.reduce((text, user) => `${text} @${user.username}`, '')
+    const counterString = allUserAnswers.length !== 0
+      ? ': `' + allUserAnswers.length + '`'
+      : ''
+
+    return `${text}:${emojis[index]}: ${option}${counterString} ${usernamesString} \n\n `
+  }, '')
+}
+
 module.exports = {
-  splitItems
+  splitItems,
+  pollOptionsString,
+  pollEnhancedOptionsString
 }

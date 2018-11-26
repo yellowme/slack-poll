@@ -101,10 +101,6 @@ app.post('/poll', async (req, res) => {
 
     await models.Poll.update({
       titleTs: titleResponse.ts
-      // optionsTs: optionsResponse.ts,
-      // buttonsTs: buttonsResponse.ts,
-      // buttons2Ts: buttons2Response.ts,
-      // buttonDeleteTs: buttonDeleteResponse.ts
     }, {
       where: {
         id: currentPoll.id

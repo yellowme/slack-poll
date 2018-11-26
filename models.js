@@ -12,11 +12,7 @@ const PollModel = db.define('polls', {
   text: { type: Sequelize.STRING },
   owner: { type: Sequelize.STRING },
   channel: { type: Sequelize.STRING },
-  titleTs: { type: Sequelize.STRING },
-  optionsTs: { type: Sequelize.STRING },
-  buttonsTs: { type: Sequelize.STRING },
-  buttons2Ts: { type: Sequelize.STRING },
-  buttonDeleteTs: { type: Sequelize.STRING }
+  titleTs: { type: Sequelize.STRING }
 }, {
   timestamps: true
 })

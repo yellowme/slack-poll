@@ -1,5 +1,5 @@
-const config = require('./config')
 const Sequelize = require('sequelize')
+const config = require('./config')
 
 const db = config.DATABASE_URL
   ? new Sequelize(config.DATABASE_URL)
@@ -10,11 +10,9 @@ const db = config.DATABASE_URL
 
 const PollModel = db.define('polls', {
   text: { type: Sequelize.STRING },
-  titleTs: { type: Sequelize.STRING },
-  optionsTs: { type: Sequelize.STRING },
-  buttonsTs: { type: Sequelize.STRING },
-  buttons2Ts: { type: Sequelize.STRING },
-  buttonDeleteTs: { type: Sequelize.STRING }
+  owner: { type: Sequelize.STRING },
+  channel: { type: Sequelize.STRING },
+  titleTs: { type: Sequelize.STRING }
 }, {
   timestamps: true
 })
@@ -27,11 +25,11 @@ const PollAnswerModel = db.define('poll_answers', {
   timestamps: true
 })
 
-db.sync()
+db.sync({ alter: true })
 
 PollAnswerModel.belongsTo(PollModel)
 
 const Poll = db.models.polls
 const PollAnswer = db.models.poll_answers
 
-module.exports = { Poll, PollAnswer }
+module.exports = { Poll, PollAnswer, db }

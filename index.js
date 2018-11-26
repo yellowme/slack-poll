@@ -1,14 +1,13 @@
 const express = require('express')
 const config = require('./config')
 const formatters = require('./formatters')
-const slack = require('./slack')
+const slackApi = require('./slack')
 const models = require('./models')
 const utils = require('./utils')
+const controller = require('./controller')
 
 const port = config.PORT
 const validationToken = config.SLACK_VERIFICATION_TOKEN
-
-const emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'keycap_ten']
 
 const app = express()
 
@@ -24,7 +23,7 @@ app.post('/poll', async (req, res) => {
   const items = formatters.splitItems(text)
 
   if (items.options.length > 10) {
-    await slack.sendPollMessage({
+    await slackApi('chat.postMessage', 'POST', {
       attachments: [
         {
           fallback: 'Sorry, creating polls with more than 10 options is not supported yet',
@@ -42,18 +41,16 @@ app.post('/poll', async (req, res) => {
   }
 
   const pollTitle = `${items.question}\n\n`
-  const pollOptions = items.options.reduce((text, option, index) => (
-    `${text}:${emojis[index]}: ${option} \n\n`
-  ), '')
+  const pollOptions = formatters.pollOptionsString(items)
 
   const currentPoll = await models.Poll.create({
-    text: req.body.text
-  }, {
-    raw: true
-  })
+    text: req.body.text,
+    owner: req.body.user_id,
+    channel: req.body.channel_id
+  }).then(m => m.get({ plain: true }))
 
   try {
-    const titleResponse = await slack.sendPollMessage({
+    const titleResponse = await slackApi('chat.postMessage', 'POST', {
       attachments: [
         {
           fallback: pollTitle,
@@ -61,77 +58,20 @@ app.post('/poll', async (req, res) => {
           callback_id: currentPoll.id,
           color: '#ffd100',
           attachment_type: 'default'
-        }
-      ],
-      channel: req.body.channel_id,
-      username: 'Yellow Poll'
-    })
-
-    const optionsResponse = await slack.sendPollMessage({
-      attachments: [
-        {
+        }, {
           fallback: pollOptions,
           text: pollOptions,
           callback_id: currentPoll.id,
           color: '#ffd100',
           attachment_type: 'default'
-        }
-      ],
-      channel: req.body.channel_id,
-      username: 'Yellow Poll'
-    })
-
-    const buttonsResponse = await slack.sendPollMessage({
-      attachments: [
-        {
+        },
+        ...formatters.mapAttatchmenBody(items, currentPoll, {
           fallback: '',
           title: '',
           callback_id: currentPoll.id,
           color: '#ffd100',
-          attachment_type: 'default',
-          actions: [
-            ...items.options.slice(0, 5).map((option, index) => ({
-              name: `${option}-${index}`,
-              text: `:${emojis[index]}:`,
-              type: 'button',
-              value: `${option}-${index}`
-            }))
-          ]
-        }
-      ],
-      channel: req.body.channel_id,
-      username: 'Yellow Poll'
-    })
-
-    const buttons2Response = items.options.length > 5
-      ? await slack.sendPollMessage({
-        attachments: [
-          {
-            fallback: '',
-            title: '',
-            callback_id: currentPoll.id,
-            color: '#ffd100',
-            attachment_type: 'default',
-            actions: [
-              ...items.options.slice(5, 10).map((option, _index) => {
-                const index = _index + 5
-                return {
-                  name: `${option}-${index}`,
-                  text: `:${emojis[index]}:`,
-                  type: 'button',
-                  value: `${option}-${index}`
-                }
-              })
-            ]
-          }
-        ],
-        channel: req.body.channel_id,
-        username: 'Yellow Poll'
-      })
-      : {}
-
-    const buttonDeleteResponse = await slack.sendPollMessage({
-      attachments: [
+          attachment_type: 'default'
+        }),
         {
           fallback: '',
           title: '',
@@ -160,12 +100,7 @@ app.post('/poll', async (req, res) => {
     })
 
     await models.Poll.update({
-      text: req.body.text,
-      titleTs: titleResponse.ts,
-      optionsTs: optionsResponse.ts,
-      buttonsTs: buttonsResponse.ts,
-      buttons2Ts: buttons2Response.ts,
-      buttonDeleteTs: buttonDeleteResponse.ts
+      titleTs: titleResponse.ts
     }, {
       where: {
         id: currentPoll.id
@@ -180,10 +115,7 @@ app.post('/poll', async (req, res) => {
 })
 
 app.post('/hook', async (req, res) => {
-  if (!req.body) {
-    return res.status(400).send('Empty body')
-  }
-
+  if (!req.body) return res.status(400).send('Empty body')
   const body = JSON.parse(req.body.payload)
 
   if (body.token !== validationToken) {
@@ -194,97 +126,75 @@ app.post('/hook', async (req, res) => {
     const currentPoll = await models.Poll.findById(body.callback_id, { raw: true })
     if (!currentPoll) throw new Error('Unexisting poll!')
 
-    const currentUserAnswer = await models.PollAnswer.findOne({
-      where: {
-        pollId: currentPoll.id,
-        userId: body.user.id
-      },
-      raw: true
-    })
-
-    await models.PollAnswer.destroy({
-      where: {
-        pollId: currentPoll.id,
-        userId: body.user.id
-      }
-    })
-
     if (body.actions[0].value === 'cancel-null') {
-      await slack.deletePollMessage({
-        channel: body.channel.id,
-        ts: currentPoll.buttonDeleteTs
-      })
-      await slack.deletePollMessage({
-        channel: body.channel.id,
-        ts: currentPoll.buttons2Ts
-      })
-      await slack.deletePollMessage({
-        channel: body.channel.id,
-        ts: currentPoll.buttonsTs
-      })
-      await slack.deletePollMessage({
-        channel: body.channel.id,
-        ts: currentPoll.optionsTs
-      })
-      await slack.deletePollMessage({
-        channel: body.channel.id,
-        ts: currentPoll.titleTs
-      })
-      await models.Poll.destroy({
-        where: {
-          id: currentPoll.id
-        }
-      })
-
+      if (currentPoll.owner !== body.user.id) return res.status(204).send()
+      await controller.deletePoll(currentPoll)
       return res.status(201).send()
     }
 
-    const userAnswer = (currentUserAnswer && currentUserAnswer.answer === body.actions[0].value)
-      ? {}
-      : await models.PollAnswer.create({
-        pollId: currentPoll.id,
-        answer: body.actions[0].value,
-        userId: body.user.id,
-        username: body.user.name
-      }, {
-        raw: true
-      })
-
-    const currentPollAnswers = await models.PollAnswer.findAll({
-      where: {
-        pollId: currentPoll.id
-      },
-      raw: true
+    const userAnswer = await controller.addAnswerToPoll(currentPoll, {
+      pollId: currentPoll.id,
+      answer: body.actions[0].value,
+      userId: body.user.id,
+      username: body.user.name
     })
 
+    const currentPollAnswers = await controller.readPollAnswers(currentPoll)
     const text = utils.cleanDoubleQuotes(currentPoll.text)
     const items = formatters.splitItems(text)
 
-    const pollOptions = items.options.reduce((text, option, index) => {
-      const answerValue = `${option}-${index}`
-      const allUserAnswers = currentPollAnswers.filter(cpa => cpa.answer === answerValue)
-      const usernamesString = allUserAnswers.reduce((text, user) => `${text} @${user.username}`, '')
-      const counterString = allUserAnswers.length !== 0
-        ? '`' + allUserAnswers.length + '`'
-        : ''
-
-      return `${text}:${emojis[index]}: ${option}: ${counterString} ${usernamesString} \n\n `
-    }, '')
+    const pollTitle = `${items.question}\n\n`
+    const pollOptions = formatters.pollEnhancedOptionsString(items, currentPollAnswers)
 
     try {
-      await slack.updatePollMessage({
+      await slackApi('chat.update', 'POST', {
         link_names: 1,
         parse: 'full',
         channel: body.channel.id,
-        ts: currentPoll.optionsTs,
+        ts: currentPoll.titleTs,
         attachments: [
           {
+            fallback: pollTitle,
+            title: pollTitle,
+            callback_id: currentPoll.id,
+            color: '#ffd100',
+            attachment_type: 'default'
+          }, {
             fallback: pollOptions,
             text: pollOptions,
             callback_id: body.callback_id,
             color: '#ffd100',
             attachment_type: 'default',
             mrkdwn_in: ['text']
+          },
+          ...formatters.mapAttatchmenBody(items, currentPoll, {
+            fallback: '',
+            title: '',
+            callback_id: currentPoll.id,
+            color: '#ffd100',
+            attachment_type: 'default'
+          }),
+          {
+            fallback: '',
+            title: '',
+            callback_id: currentPoll.id,
+            color: '#ffd100',
+            attachment_type: 'default',
+            actions: [
+              {
+                name: 'cancel',
+                text: 'Delete Poll',
+                style: 'danger',
+                type: 'button',
+                value: 'cancel-null',
+                confirm: {
+                  title: 'Delete Poll?',
+                  text: 'Are you sure you want to delete the Poll?',
+                  ok_text: 'Yes',
+                  dismiss_text: 'No'
+                }
+              }
+            ]
           }
         ]
       })

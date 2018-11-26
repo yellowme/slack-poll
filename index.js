@@ -1,15 +1,13 @@
 const express = require('express')
 const config = require('./config')
 const formatters = require('./formatters')
-const slack = require('./slack')
+const slackApi = require('./slack')
 const models = require('./models')
 const utils = require('./utils')
 const controller = require('./controller')
 
 const port = config.PORT
 const validationToken = config.SLACK_VERIFICATION_TOKEN
-
-const emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'keycap_ten']
 
 const app = express()
 
@@ -25,7 +23,7 @@ app.post('/poll', async (req, res) => {
   const items = formatters.splitItems(text)
 
   if (items.options.length > 10) {
-    await slack.sendPollMessage({
+    await slackApi('chat.postMessage', 'POST', {
       attachments: [
         {
           fallback: 'Sorry, creating polls with more than 10 options is not supported yet',
@@ -43,7 +41,7 @@ app.post('/poll', async (req, res) => {
   }
 
   const pollTitle = `${items.question}\n\n`
-  const pollOptions = formatters.pollOptionsString(items, emojis)
+  const pollOptions = formatters.pollOptionsString(items)
 
   const currentPoll = await models.Poll.create({
     text: req.body.text,
@@ -52,7 +50,7 @@ app.post('/poll', async (req, res) => {
   }).then(m => m.get({ plain: true }))
 
   try {
-    const titleResponse = await slack.sendPollMessage({
+    const titleResponse = await slackApi('chat.postMessage', 'POST', {
       attachments: [
         {
           fallback: pollTitle,
@@ -60,77 +58,20 @@ app.post('/poll', async (req, res) => {
           callback_id: currentPoll.id,
           color: '#ffd100',
           attachment_type: 'default'
-        }
-      ],
-      channel: req.body.channel_id,
-      username: 'Yellow Poll'
-    })
-
-    const optionsResponse = await slack.sendPollMessage({
-      attachments: [
-        {
+        }, {
           fallback: pollOptions,
           text: pollOptions,
           callback_id: currentPoll.id,
           color: '#ffd100',
           attachment_type: 'default'
-        }
-      ],
-      channel: req.body.channel_id,
-      username: 'Yellow Poll'
-    })
-
-    const buttonsResponse = await slack.sendPollMessage({
-      attachments: [
-        {
+        },
+        ...formatters.mapAttatchmenBody(items, currentPoll, {
           fallback: '',
           title: '',
           callback_id: currentPoll.id,
           color: '#ffd100',
-          attachment_type: 'default',
-          actions: [
-            ...items.options.slice(0, 5).map((option, index) => ({
-              name: `${option}-${index}`,
-              text: `:${emojis[index]}:`,
-              type: 'button',
-              value: `${option}-${index}`
-            }))
-          ]
-        }
-      ],
-      channel: req.body.channel_id,
-      username: 'Yellow Poll'
-    })
-
-    const buttons2Response = items.options.length > 5
-      ? await slack.sendPollMessage({
-        attachments: [
-          {
-            fallback: '',
-            title: '',
-            callback_id: currentPoll.id,
-            color: '#ffd100',
-            attachment_type: 'default',
-            actions: [
-              ...items.options.slice(5, 10).map((option, _index) => {
-                const index = _index + 5
-                return {
-                  name: `${option}-${index}`,
-                  text: `:${emojis[index]}:`,
-                  type: 'button',
-                  value: `${option}-${index}`
-                }
-              })
-            ]
-          }
-        ],
-        channel: req.body.channel_id,
-        username: 'Yellow Poll'
-      })
-      : {}
-
-    const buttonDeleteResponse = await slack.sendPollMessage({
-      attachments: [
+          attachment_type: 'default'
+        }),
         {
           fallback: '',
           title: '',
@@ -159,11 +100,11 @@ app.post('/poll', async (req, res) => {
     })
 
     await models.Poll.update({
-      titleTs: titleResponse.ts,
-      optionsTs: optionsResponse.ts,
-      buttonsTs: buttonsResponse.ts,
-      buttons2Ts: buttons2Response.ts,
-      buttonDeleteTs: buttonDeleteResponse.ts
+      titleTs: titleResponse.ts
+      // optionsTs: optionsResponse.ts,
+      // buttonsTs: buttonsResponse.ts,
+      // buttons2Ts: buttons2Response.ts,
+      // buttonDeleteTs: buttonDeleteResponse.ts
     }, {
       where: {
         id: currentPoll.id
@@ -205,22 +146,59 @@ app.post('/hook', async (req, res) => {
     const currentPollAnswers = await controller.readPollAnswers(currentPoll)
     const text = utils.cleanDoubleQuotes(currentPoll.text)
     const items = formatters.splitItems(text)
-    const pollOptions = formatters.pollEnhancedOptionsString(items, currentPollAnswers, emojis)
+
+    const pollTitle = `${items.question}\n\n`
+    const pollOptions = formatters.pollEnhancedOptionsString(items, currentPollAnswers)
 
     try {
-      await slack.updatePollMessage({
+      await slackApi('chat.update', 'POST', {
         link_names: 1,
         parse: 'full',
         channel: body.channel.id,
-        ts: currentPoll.optionsTs,
+        ts: currentPoll.titleTs,
         attachments: [
           {
+            fallback: pollTitle,
+            title: pollTitle,
+            callback_id: currentPoll.id,
+            color: '#ffd100',
+            attachment_type: 'default'
+          }, {
             fallback: pollOptions,
             text: pollOptions,
             callback_id: body.callback_id,
             color: '#ffd100',
             attachment_type: 'default',
             mrkdwn_in: ['text']
+          },
+          ...formatters.mapAttatchmenBody(items, currentPoll, {
+            fallback: '',
+            title: '',
+            callback_id: currentPoll.id,
+            color: '#ffd100',
+            attachment_type: 'default'
+          }),
+          {
+            fallback: '',
+            title: '',
+            callback_id: currentPoll.id,
+            color: '#ffd100',
+            attachment_type: 'default',
+            actions: [
+              {
+                name: 'cancel',
+                text: 'Delete Poll',
+                style: 'danger',
+                type: 'button',
+                value: 'cancel-null',
+                confirm: {
+                  title: 'Delete Poll?',
+                  text: 'Are you sure you want to delete the Poll?',
+                  ok_text: 'Yes',
+                  dismiss_text: 'No'
+                }
+              }
+            ]
           }
         ]
       })

@@ -4,6 +4,7 @@ dotenv.config({ silent: true })
 
 const {
   PORT = 3000,
+  SLACK_BASE_URL = 'https://slack.com/api',
   DATABASE_URL,
   SLACK_VERIFICATION_TOKEN,
   SLACK_ACCESS_TOKEN
@@ -22,6 +23,7 @@ Object.keys(defaults).forEach((key) => {
 
 module.exports = {
   PORT,
+  SLACK_BASE_URL,
   DATABASE_URL,
   SLACK_VERIFICATION_TOKEN,
   SLACK_ACCESS_TOKEN

@@ -1,8 +1,20 @@
+const constants = require('./constants')
+
 const emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'keycap_ten']
 
 function splitItems (text) {
-  const rawOptions = text.split('"').filter(s => s !== '' && s !== ' ')
+  const mode = text.search('-m') >= 0
+    ? constants.pollMode.MULTIPLE
+    : constants.pollMode.SINGLE
+
+  const rawOptions = text
+    .replace('-m', '')
+    .split('"')
+    .map(s => s.trim())
+    .filter(s => s !== '' && s !== ' ')
+
   return {
+    mode,
     question: rawOptions[0],
     options: rawOptions.slice(1)
   }

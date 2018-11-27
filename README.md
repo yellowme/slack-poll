@@ -26,3 +26,15 @@ cp .env.example .env
 npm start
 ```
 
+## Development
+
+Generating Migrations
+```sh
+node_modules/.bin/sequelize migration:generate --name <migration_name>
+```
+
+Running daemon
+```sh
+npm run dev
+```
+

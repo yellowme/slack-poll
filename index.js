@@ -46,18 +46,21 @@ app.post('/poll', async (req, res) => {
   const currentPoll = await models.Poll.create({
     text: req.body.text,
     owner: req.body.user_id,
-    channel: req.body.channel_id
+    channel: req.body.channel_id,
+    mode: items.options.mode
   }).then(m => m.get({ plain: true }))
 
   try {
     const titleResponse = await slackApi('chat.postMessage', 'POST', {
       attachments: [
         {
+          pretext: req.body.text,
           fallback: pollTitle,
           title: pollTitle,
           callback_id: currentPoll.id,
           color: '#ffd100',
-          attachment_type: 'default'
+          attachment_type: 'default',
+          footer: 'Single'
         }, {
           fallback: pollOptions,
           text: pollOptions,
@@ -154,6 +157,7 @@ app.post('/hook', async (req, res) => {
         ts: currentPoll.titleTs,
         attachments: [
           {
+            pretext: currentPoll.text,
             fallback: pollTitle,
             title: pollTitle,
             callback_id: currentPoll.id,

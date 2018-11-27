@@ -1,10 +1,6 @@
 const models = require('./models')
 const slackApi = require('./slack')
 
-/**
- * Deberia poder crear un poll
- */
-
 function _deletePollMessages (currentPoll) {
   return Promise.all([
     slackApi('chat.delete', 'POST', {

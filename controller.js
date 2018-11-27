@@ -1,4 +1,5 @@
 const models = require('./models')
+const constants = require('./constants')
 const slackApi = require('./slack')
 
 function _deletePollMessages (currentPoll) {
@@ -52,26 +53,31 @@ function readPollAnswers (currentPoll) {
 }
 
 async function addAnswerToPoll (currentPoll, answerData) {
+  const isMultiple = currentPoll.mode === constants.pollMode.MULTIPLE
   const currentAnswer = await models.PollAnswer.findOne({
-    where: { userId: answerData.userId, pollId: currentPoll.id },
+    where: {
+      ...isMultiple ? { answer: answerData.answer } : {},
+      userId: answerData.userId,
+      pollId: currentPoll.id
+    },
     raw: true
   })
 
   if (currentAnswer && answerData.answer === currentAnswer.answer) {
     return models.PollAnswer.destroy({
-      where: {
-        userId: answerData.userId,
-        pollId: currentPoll.id
-      }
+      where: { id: currentAnswer.id }
     })
   } else if (currentAnswer && answerData.answer !== currentAnswer.answer) {
+    if (currentPoll.mode === constants.pollMode.MULTIPLE) {
+      return models.PollAnswer
+        .create(answerData)
+        .then(m => m.get({ plain: true }))
+    }
+
     return models.db.transaction((transaction) => {
       return models.PollAnswer.destroy({
         transaction,
-        where: {
-          userId: answerData.userId,
-          pollId: currentPoll.id
-        }
+        where: { id: currentAnswer.id }
       }).then(() => (
         models.PollAnswer
           .create(answerData, { transaction })

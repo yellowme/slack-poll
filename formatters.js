@@ -67,9 +67,14 @@ function pollEnhancedOptionsString (items, currentPollAnswers) {
   }, '')
 }
 
+function stringFromPollMode (pollMode) {
+  return pollMode === constants.pollMode.MULTIPLE ? 'Multiple' : 'Single'
+}
+
 module.exports = {
   splitItems,
   mapAttatchmenBody,
   pollOptionsString,
-  pollEnhancedOptionsString
+  pollEnhancedOptionsString,
+  stringFromPollMode
 }

@@ -1,5 +1,6 @@
 const Sequelize = require('sequelize')
 const config = require('./config')
+const constants = require('./constants')
 
 const db = config.DATABASE_URL
   ? new Sequelize(config.DATABASE_URL)
@@ -12,7 +13,14 @@ const PollModel = db.define('polls', {
   text: { type: Sequelize.STRING },
   owner: { type: Sequelize.STRING },
   channel: { type: Sequelize.STRING },
-  titleTs: { type: Sequelize.STRING }
+  titleTs: { type: Sequelize.STRING },
+  mode: {
+    defaultValue: constants.pollMode.SINGLE,
+    type: Sequelize.ENUM(
+      constants.pollMode.SINGLE,
+      constants.pollMode.MULTIPLE
+    )
+  }
 }, {
   timestamps: true
 })
@@ -25,7 +33,7 @@ const PollAnswerModel = db.define('poll_answers', {
   timestamps: true
 })
 
-db.sync({ alter: true })
+db.sync()
 
 PollAnswerModel.belongsTo(PollModel)
 

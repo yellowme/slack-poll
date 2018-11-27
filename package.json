@@ -9,7 +9,7 @@
     "dev": "nodemon index.js",
     "tunnel": "ngrok http 3000",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "migrate": "[[ $DATABASE_URL ]] && sequelize db:migrate --url $DATABASE_URL || echo"
+    "migrate": "if [ $DATABASE_URL ]; then sequelize db:migrate --url $DATABASE_URL ; else echo; fi"
   },
   "engines": {
     "node": "8.x || 9.x || 10.x"

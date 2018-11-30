@@ -54,18 +54,21 @@ function readPollAnswers (currentPoll) {
 
 async function addAnswerToPoll (currentPoll, answerData) {
   const isMultiple = currentPoll.mode === constants.pollMode.MULTIPLE
+
+  const userSelectiveAnswerOptions = {
+    ...isMultiple ? { answer: answerData.answer } : {},
+    userId: answerData.userId,
+    pollId: currentPoll.id
+  }
+
   const currentAnswer = await models.PollAnswer.findOne({
-    where: {
-      ...isMultiple ? { answer: answerData.answer } : {},
-      userId: answerData.userId,
-      pollId: currentPoll.id
-    },
+    where: userSelectiveAnswerOptions,
     raw: true
   })
 
   if (currentAnswer && answerData.answer === currentAnswer.answer) {
     return models.PollAnswer.destroy({
-      where: { id: currentAnswer.id }
+      where: userSelectiveAnswerOptions
     })
   } else if (currentAnswer && answerData.answer !== currentAnswer.answer) {
     if (currentPoll.mode === constants.pollMode.MULTIPLE) {
@@ -77,7 +80,7 @@ async function addAnswerToPoll (currentPoll, answerData) {
     return models.db.transaction((transaction) => {
       return models.PollAnswer.destroy({
         transaction,
-        where: { id: currentAnswer.id }
+        where: userSelectiveAnswerOptions
       }).then(() => (
         models.PollAnswer
           .create(answerData, { transaction })

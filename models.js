@@ -3,10 +3,11 @@ const config = require('./config')
 const constants = require('./constants')
 
 const db = config.DATABASE_URL
-  ? new Sequelize(config.DATABASE_URL)
+  ? new Sequelize(config.DATABASE_URL, { logging: false })
   : new Sequelize('yellowpoll', null, null, {
     dialect: 'sqlite',
-    storage: './yellowpoll.sqlite'
+    storage: './yellowpoll.sqlite',
+    logging: false
   })
 
 const PollModel = db.define('polls', {

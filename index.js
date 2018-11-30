@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }))
 
 app.post('/poll', async (req, res) => {
   if (!req.body || req.body.token !== validationToken) {
-    return res.status(403).send('Request is not signed correctly!')
+    return res.status(403).json({ errors: ['Request is not signed correctly!'] })
   }
 
   const text = utils.cleanDoubleQuotes(req.body.text)
@@ -37,7 +37,7 @@ app.post('/poll', async (req, res) => {
       username: 'Yellow Poll'
     })
 
-    return res.status(200).send()
+    return res.status(202).send()
   }
 
   const pollTitle = `${items.question}\n\n`
@@ -212,6 +212,7 @@ app.post('/hook', async (req, res) => {
   return res.status(201).send()
 })
 
+module.exports = app
 app.listen(port, () => {
   console.log(`=>> App listen on ${port}`)
 })

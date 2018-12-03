@@ -8,12 +8,12 @@ const constants = require('./constants')
 
 // Base message template from https://api.slack.com/docs/message-formatting
 function messageTemplate (messageData) {
-  const { req, pollTitle, pollOptions, items, currentPoll, emojis } = messageData
+  const { text, pollTitle, pollOptions, items, currentPoll, emojis } = messageData
 
   return {
     attachments: [
       {
-        pretext: req.body.text,
+        pretext: text,
         fallback: pollTitle,
         title: pollTitle,
         callback_id: currentPoll.id,
@@ -85,12 +85,6 @@ async function pollPost (req, res) {
   }
 
   const {
-    text,
-    user_id: owner,
-    channel_id: channel
-  } = req.body
-
-  const {
     items,
     emojis,
     pollOptions,
@@ -98,7 +92,12 @@ async function pollPost (req, res) {
   } = generateBaseOptions(req.body.text)
 
   const currentPoll = await models.Poll
-    .create({ text, owner, channel, mode: items.mode })
+    .create({
+      text: req.body.text,
+      owner: req.body.user_id,
+      channel: req.body.channel_id,
+      mode: items.mode
+    })
     .then(m => m.get({ plain: true }))
 
   try {
@@ -107,12 +106,12 @@ async function pollPost (req, res) {
       'POST',
       {
         ...messageTemplate({
-          req,
           pollTitle,
           pollOptions,
           items,
           currentPoll,
-          emojis
+          emojis,
+          text: req.body.text
         }),
         channel: req.body.channel_id,
         username: 'Yellow Poll'
@@ -147,6 +146,10 @@ async function hookPost (req, res) {
       return res.status(201).send()
     }
 
+    const { items, emojis, pollTitle } = generateBaseOptions(currentPoll.text)
+    const currentPollAnswers = await service.readPollAnswers(currentPoll)
+    const pollOptions = formatters.pollEnhancedOptionsString(items, currentPollAnswers, emojis)
+
     const userAnswer = await service.addAnswerToPoll(currentPoll, {
       pollId: currentPoll.id,
       answer: body.actions[0].value,
@@ -154,25 +157,18 @@ async function hookPost (req, res) {
       username: body.user.name
     })
 
-    const currentPollAnswers = await service.readPollAnswers(currentPoll)
-    const text = utils.cleanDoubleQuotes(currentPoll.text)
-    const items = formatters.splitItems(text)
-    const emojis = items.options.length > 10 ? constants.fullEmoji : constants.limitedEmoji
-    const pollTitle = `${items.question}\n\n`
-    const pollOptions = formatters.pollEnhancedOptionsString(items, currentPollAnswers, emojis)
-
     try {
       await slackApi(
         'chat.update',
         'POST',
         {
           ...messageTemplate({
-            req,
             pollTitle,
             pollOptions,
             items,
             currentPoll,
-            emojis
+            emojis,
+            text: currentPoll.text
           }),
           link_names: 1,
           parse: 'full',

@@ -146,16 +146,16 @@ async function hookPost (req, res) {
       return res.status(201).send()
     }
 
-    const { items, emojis, pollTitle } = generateBaseOptions(currentPoll.text)
-    const currentPollAnswers = await service.readPollAnswers(currentPoll)
-    const pollOptions = formatters.pollEnhancedOptionsString(items, currentPollAnswers, emojis)
-
     const userAnswer = await service.addAnswerToPoll(currentPoll, {
       pollId: currentPoll.id,
       answer: body.actions[0].value,
       userId: body.user.id,
       username: body.user.name
     })
+
+    const { items, emojis, pollTitle } = generateBaseOptions(currentPoll.text)
+    const currentPollAnswers = await service.readPollAnswers(currentPoll)
+    const pollOptions = formatters.pollEnhancedOptionsString(items, currentPollAnswers, emojis)
 
     try {
       await slackApi(

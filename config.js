@@ -15,6 +15,7 @@ const defaults = {
   SLACK_ACCESS_TOKEN: null
 }
 
+// Alert to fill the necessary environment variables
 Object.keys(defaults).forEach((key) => {
   if (!process.env[key]) {
     throw new Error(`Please enter a custom ${key} in .env on the root directory`)

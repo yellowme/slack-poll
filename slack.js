@@ -1,13 +1,16 @@
-const fetch = require('node-fetch')
+const axios = require('axios')
 const config = require('./config')
 
-module.exports = function slackApi (url, method, body) {
-  return fetch(`${config.SLACK_BASE_URL}/${url}`, {
+module.exports = function slackApi (url, method, data) {
+  return axios({
     method,
+    data,
+    url: `${config.SLACK_BASE_URL}/${url}`,
+    responseType: 'json',
     headers: {
       'Authorization': `Bearer ${config.SLACK_ACCESS_TOKEN}`,
       'Content-Type': 'application/json; charset=utf-8'
-    },
-    body: JSON.stringify(body)
-  }).then(response => response.json())
+    }
+  })
+    .then(response => response.data)
 }

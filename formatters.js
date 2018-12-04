@@ -1,7 +1,5 @@
 const constants = require('./constants')
 
-const emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'keycap_ten']
-
 function splitItems (text) {
   const mode = text.search('-m') >= 0
     ? constants.pollMode.MULTIPLE
@@ -20,41 +18,13 @@ function splitItems (text) {
   }
 }
 
-function mapAttatchmenBody (items, currentPoll, body) {
-  return [
-    {
-      ...body,
-      actions: items.options.slice(0, 5).map((option, index) => ({
-        name: `${option}-${index}`,
-        text: `:${emojis[index]}:`,
-        type: 'button',
-        value: `${option}-${index}`
-      }))
-    },
-    ...items.options.length > 5
-      ? [{
-        ...body,
-        actions: items.options.slice(5, 10).map((option, _index) => {
-          const index = _index + 5
-          return {
-            name: `${option}-${index}`,
-            text: `:${emojis[index]}:`,
-            type: 'button',
-            value: `${option}-${index}`
-          }
-        })
-      }]
-      : [{}]
-  ]
-}
-
-function pollOptionsString (items) {
+function pollOptionsString (items, emojis) {
   return items.options.reduce((text, option, index) => (
     `${text}:${emojis[index]}: ${option} \n\n`
   ), '')
 }
 
-function pollEnhancedOptionsString (items, currentPollAnswers) {
+function pollEnhancedOptionsString (items, currentPollAnswers, emojis) {
   return items.options.reduce((text, option, index) => {
     const answerValue = `${option}-${index}`
     const allUserAnswers = currentPollAnswers.filter(cpa => cpa.answer === answerValue)
@@ -73,7 +43,6 @@ function stringFromPollMode (pollMode) {
 
 module.exports = {
   splitItems,
-  mapAttatchmenBody,
   pollOptionsString,
   pollEnhancedOptionsString,
   stringFromPollMode

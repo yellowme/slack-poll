@@ -8,19 +8,11 @@ const constants = require('./constants');
 
 // Base message template from https://api.slack.com/docs/message-formatting
 function messageTemplate(messageData) {
-  const {
-    text,
-    pollTitle,
-    pollOptions,
-    items,
-    currentPoll,
-    emojis
-  } = messageData;
+  const { pollTitle, pollOptions, items, currentPoll, emojis } = messageData;
 
   return {
     attachments: [
       {
-        pretext: text,
         fallback: pollTitle,
         title: pollTitle,
         callback_id: currentPoll.id,
@@ -107,14 +99,19 @@ async function pollPost(req, res) {
   }).then(m => m.get({ plain: true }));
 
   try {
+    await slackApi('chat.postMessage', 'POST', {
+      as_user: true,
+      channel: req.body.channel_id,
+      text: req.body.text
+    });
+
     const titleResponse = await slackApi('chat.postMessage', 'POST', {
       ...messageTemplate({
         pollTitle,
         pollOptions,
         items,
         currentPoll,
-        emojis,
-        text: req.body.text
+        emojis
       }),
       channel: req.body.channel_id,
       username: 'Yellow Poll'
@@ -124,12 +121,12 @@ async function pollPost(req, res) {
       { titleTs: titleResponse.ts },
       { where: { id: currentPoll.id } }
     );
+
+    return res.status(201).send();
   } catch (err) {
     await models.Poll.destroy({ where: { id: currentPoll.id } });
     throw err;
   }
-
-  return res.status(201).send();
 }
 
 // POST /hook

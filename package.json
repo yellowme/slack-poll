@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "main": "slackPoll.js",
+  "license": "MIT",
   "scripts": {
     "start": "node index.js",
     "prestart": "npm run migrate",

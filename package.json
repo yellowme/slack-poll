@@ -8,12 +8,16 @@
     "prestart": "npm run migrate",
     "dev": "nodemon index.js",
     "tunnel": "ngrok http 3000",
-    "migrate": "if [ $DATABASE_URL ]; then sequelize db:migrate --url $DATABASE_URL ; else echo; fi"
+    "migrate": "if [ $DATABASE_URL ]; then sequelize db:migrate --url $DATABASE_URL ; else echo; fi",
+    "lint": "eslint --ext .js,.jsx --ignore-pattern public .",
+    "lint-fix": "eslint --ext .js,.jsx --ignore-pattern public . --fix",
+    "format": "prettier *.js --write"
   },
   "engines": {
     "node": "8.x || 9.x || 10.x"
   },
   "dependencies": {
+    "axios": "^0.18.0",
     "dotenv": "^6.1.0",
     "express": "^4.13.4",
     "morgan": "^1.9.1",
@@ -21,10 +25,15 @@
     "pg-hstore": "^2.3.2",
     "sequelize": "^4.41.2",
     "sequelize-cli": "^5.4.0",
-    "sqlite3": "^4.0.4",
-    "axios": "^0.18.0"
+    "sqlite3": "^4.0.4"
   },
   "devDependencies": {
-    "nodemon": "^1.18.7"
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-prettier": "^4.0.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-prettier": "^3.0.1",
+    "nodemon": "^1.18.7",
+    "prettier": "^1.16.4"
   }
 }

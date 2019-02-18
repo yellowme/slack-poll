@@ -1,7 +1,18 @@
-const emojiData = require('./emoji.json')
+const emojiData = require('./emoji.json');
 
 // Fallback emoji base
-const emojis = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'keycap_ten']
+const emojis = [
+  'one',
+  'two',
+  'three',
+  'four',
+  'five',
+  'six',
+  'seven',
+  'eight',
+  'nine',
+  'keycap_ten'
+];
 
 module.exports = {
   fullEmoji: emojiData.map(e => e.short_name),
@@ -10,4 +21,4 @@ module.exports = {
     SINGLE: 's',
     MULTIPLE: 'm'
   }
-}
+};

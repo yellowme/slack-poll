@@ -99,11 +99,13 @@ async function pollPost(req, res) {
   }).then(m => m.get({ plain: true }));
 
   try {
+    /*
     await slackApi('chat.postMessage', 'POST', {
       as_user: true,
       channel: req.body.channel_id,
       text: req.body.text
     });
+    */
 
     const titleResponse = await slackApi('chat.postMessage', 'POST', {
       ...messageTemplate({

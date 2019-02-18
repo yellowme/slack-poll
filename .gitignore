@@ -80,3 +80,5 @@ typings/
 
 #Sqlite
 *.sqlite
+
+package-lock\.json

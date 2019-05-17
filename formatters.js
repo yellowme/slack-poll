@@ -1,6 +1,6 @@
 const constants = require('./constants');
 
-function splitItems(text) {
+function extractElementsFromSlackText(text) {
   const mode =
     text.search('-m') >= 0
       ? constants.pollMode.MULTIPLE
@@ -19,23 +19,26 @@ function splitItems(text) {
   };
 }
 
-function pollOptionsString(items, emojis) {
+function reducePollOptionsString(items, emojis) {
   return items.options.reduce(
     (text, option, index) => `${text}:${emojis[index]}: ${option} \n\n`,
     ''
   );
 }
 
-function pollEnhancedOptionsString(items, currentPollAnswers, emojis) {
+// Enhance polloptions with user answers
+function reducePollEnhancedOptionsString(items, currentPollAnswers, emojis) {
   return items.options.reduce((text, option, index) => {
     const answerValue = `${option}-${index}`;
     const allUserAnswers = currentPollAnswers.filter(
       cpa => cpa.answer === answerValue
     );
+
     const usernamesString = allUserAnswers.reduce(
       (baseText, user) => `${baseText} @${user.username}`,
       ''
     );
+
     const counterString =
       allUserAnswers.length !== 0 ? `: \`${allUserAnswers.length}\`` : '';
 
@@ -50,8 +53,8 @@ function stringFromPollMode(pollMode) {
 }
 
 module.exports = {
-  splitItems,
-  pollOptionsString,
-  pollEnhancedOptionsString,
+  extractElementsFromSlackText,
+  reducePollOptionsString,
+  reducePollEnhancedOptionsString,
   stringFromPollMode,
 };

@@ -7,7 +7,7 @@ const db = config.DATABASE_URL
   : new Sequelize('yellowpoll', null, null, {
       dialect: 'sqlite',
       storage: './yellowpoll.sqlite',
-      logging: false
+      logging: false,
     });
 
 const PollModel = db.define(
@@ -22,11 +22,11 @@ const PollModel = db.define(
       type: Sequelize.ENUM(
         constants.pollMode.SINGLE,
         constants.pollMode.MULTIPLE
-      )
-    }
+      ),
+    },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
@@ -35,10 +35,10 @@ const PollAnswerModel = db.define(
   {
     answer: { type: Sequelize.STRING },
     userId: { type: Sequelize.STRING },
-    username: { type: Sequelize.STRING }
+    username: { type: Sequelize.STRING },
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 

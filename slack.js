@@ -9,7 +9,7 @@ module.exports = function slackApi(url, method, data) {
     responseType: 'json',
     headers: {
       Authorization: `Bearer ${config.SLACK_ACCESS_TOKEN}`,
-      'Content-Type': 'application/json; charset=utf-8'
-    }
+      'Content-Type': 'application/json; charset=utf-8',
+    },
   }).then(response => response.data);
 };

@@ -3,7 +3,7 @@ function chunkArray(array, limit, res = []) {
   if (array.length === 0) return res;
   return chunkArray(array.slice(limit, array.length), limit, [
     ...res,
-    array.slice(0, limit)
+    array.slice(0, limit),
   ]);
 }
 
@@ -23,5 +23,5 @@ function cleanDoubleQuotes(text) {
 module.exports = {
   chunkArray,
   replaceAll,
-  cleanDoubleQuotes
+  cleanDoubleQuotes,
 };

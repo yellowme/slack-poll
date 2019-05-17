@@ -7,12 +7,12 @@ const {
   SLACK_BASE_URL = 'https://slack.com/api',
   DATABASE_URL,
   SLACK_VERIFICATION_TOKEN,
-  SLACK_ACCESS_TOKEN
+  SLACK_ACCESS_TOKEN,
 } = process.env;
 
 const defaults = {
   SLACK_VERIFICATION_TOKEN: null,
-  SLACK_ACCESS_TOKEN: null
+  SLACK_ACCESS_TOKEN: null,
 };
 
 // Alert to fill the necessary environment variables
@@ -29,5 +29,5 @@ module.exports = {
   SLACK_BASE_URL,
   DATABASE_URL,
   SLACK_VERIFICATION_TOKEN,
-  SLACK_ACCESS_TOKEN
+  SLACK_ACCESS_TOKEN,
 };

@@ -11,20 +11,18 @@
     "tunnel": "ngrok http 3000",
     "migrate": "if [ $DATABASE_URL ]; then sequelize db:migrate --url $DATABASE_URL ; else echo; fi",
     "lint": "eslint --ext .js,.jsx --ignore-pattern public .",
-    "lint-fix": "eslint --ext .js,.jsx --ignore-pattern public . --fix",
     "format": "prettier *.js --write"
   },
   "engines": {
-    "node": "8.x || 9.x || 10.x"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
+    "node": "10.x"
   },
   "lint-staged": {
-    "*.{js,json,css,md}": [
-      "yarn format",
+    "*.{js,css,json,md}": [
+      "prettier --write",
+      "git add"
+    ],
+    "*.js": [
+      "eslint --fix",
       "git add"
     ]
   },

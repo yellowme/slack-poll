@@ -12,7 +12,7 @@ module.exports = {
           type: Sequelize.ENUM(
             constants.pollMode.SINGLE,
             constants.pollMode.MULTIPLE
-          )
+          ),
         });
       })
       .catch(() => Promise.resolve());
@@ -20,5 +20,5 @@ module.exports = {
 
   down: queryInterface => {
     return queryInterface.removeColumn('polls', 'mode');
-  }
+  },
 };

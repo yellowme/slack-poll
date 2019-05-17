@@ -15,7 +15,7 @@ function splitItems(text) {
   return {
     mode,
     question: rawOptions[0],
-    options: rawOptions.slice(1)
+    options: rawOptions.slice(1),
   };
 }
 
@@ -53,5 +53,5 @@ module.exports = {
   splitItems,
   pollOptionsString,
   pollEnhancedOptionsString,
-  stringFromPollMode
+  stringFromPollMode,
 };

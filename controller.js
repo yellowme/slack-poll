@@ -18,14 +18,14 @@ function messageTemplate(messageData) {
         callback_id: currentPoll.id,
         color: '#ffd100',
         attachment_type: 'default',
-        footer: formatters.stringFromPollMode(currentPoll.mode)
+        footer: formatters.stringFromPollMode(currentPoll.mode),
       },
       {
         fallback: pollOptions,
         text: pollOptions,
         callback_id: currentPoll.id,
         color: '#ffd100',
-        attachment_type: 'default'
+        attachment_type: 'default',
       },
       ...utils.chunkArray(items.options, 5).map((chunk, chunkIndex) => ({
         fallback: '',
@@ -39,9 +39,9 @@ function messageTemplate(messageData) {
             name: `${option}-${currentIndex}`,
             text: `:${emojis[currentIndex]}:`,
             type: 'button',
-            value: `${option}-${currentIndex}`
+            value: `${option}-${currentIndex}`,
           };
-        })
+        }),
       })),
       {
         fallback: '',
@@ -60,12 +60,12 @@ function messageTemplate(messageData) {
               title: 'Delete Poll?',
               text: 'Are you sure you want to delete the Poll?',
               ok_text: 'Yes',
-              dismiss_text: 'No'
-            }
-          }
-        ]
-      }
-    ]
+              dismiss_text: 'No',
+            },
+          },
+        ],
+      },
+    ],
   };
 }
 
@@ -95,7 +95,7 @@ async function pollPost(req, res) {
     text: req.body.text,
     owner: req.body.user_id,
     channel: req.body.channel_id,
-    mode: items.mode
+    mode: items.mode,
   }).then(m => m.get({ plain: true }));
 
   try {
@@ -113,10 +113,10 @@ async function pollPost(req, res) {
         pollOptions,
         items,
         currentPoll,
-        emojis
+        emojis,
       }),
       channel: req.body.channel_id,
-      username: 'Yellow Poll'
+      username: 'Yellow Poll',
     });
 
     await models.Poll.update(
@@ -142,7 +142,7 @@ async function hookPost(req, res) {
 
   if (body.type === 'interactive_message') {
     const currentPoll = await models.Poll.findById(body.callback_id, {
-      raw: true
+      raw: true,
     });
     if (!currentPoll) throw new Error('Unexisting poll!');
 
@@ -156,7 +156,7 @@ async function hookPost(req, res) {
       pollId: currentPoll.id,
       answer: body.actions[0].value,
       userId: body.user.id,
-      username: body.user.name
+      username: body.user.name,
     });
 
     const { items, emojis, pollTitle } = generateBaseOptions(currentPoll.text);
@@ -175,12 +175,12 @@ async function hookPost(req, res) {
           items,
           currentPoll,
           emojis,
-          text: currentPoll.text
+          text: currentPoll.text,
         }),
         link_names: 1,
         parse: 'full',
         channel: body.channel.id,
-        ts: currentPoll.titleTs
+        ts: currentPoll.titleTs,
       });
     } catch (err) {
       await models.PollAnswer.destroy({ where: { id: userAnswer.id } });
@@ -193,5 +193,5 @@ async function hookPost(req, res) {
 
 module.exports = {
   pollPost,
-  hookPost
+  hookPost,
 };

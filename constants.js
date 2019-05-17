@@ -11,7 +11,7 @@ const emojis = [
   'seven',
   'eight',
   'nine',
-  'keycap_ten'
+  'keycap_ten',
 ];
 
 module.exports = {
@@ -19,6 +19,6 @@ module.exports = {
   limitedEmoji: emojis,
   pollMode: {
     SINGLE: 's',
-    MULTIPLE: 'm'
-  }
+    MULTIPLE: 'm',
+  },
 };

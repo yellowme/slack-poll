@@ -8,37 +8,37 @@ async function deletePoll(currentPoll) {
   await Promise.all([
     slackApi('chat.delete', 'POST', {
       channel: currentPoll.channel,
-      ts: currentPoll.buttonDeleteTs
+      ts: currentPoll.buttonDeleteTs,
     }),
     slackApi('chat.delete', 'POST', {
       channel: currentPoll.channel,
-      ts: currentPoll.buttons2Ts
+      ts: currentPoll.buttons2Ts,
     }),
     slackApi('chat.delete', 'POST', {
       channel: currentPoll.channel,
-      ts: currentPoll.buttonsTs
+      ts: currentPoll.buttonsTs,
     }),
     slackApi('chat.delete', 'POST', {
       channel: currentPoll.channel,
-      ts: currentPoll.optionsTs
+      ts: currentPoll.optionsTs,
     }),
     slackApi('chat.delete', 'POST', {
       channel: currentPoll.channel,
-      ts: currentPoll.titleTs
-    })
+      ts: currentPoll.titleTs,
+    }),
   ]);
 
   return models.db.transaction(transaction => {
     return models.PollAnswer.destroy(
       {
-        where: { pollId: currentPoll.id }
+        where: { pollId: currentPoll.id },
       },
       {
-        transaction
+        transaction,
       }
     ).then(() => {
       return models.Poll.destroy({
-        where: { id: currentPoll.id }
+        where: { id: currentPoll.id },
       });
     });
   });
@@ -48,7 +48,7 @@ async function deletePoll(currentPoll) {
 function readPollAnswers(currentPoll) {
   return models.PollAnswer.findAll({
     where: { pollId: currentPoll.id },
-    raw: true
+    raw: true,
   });
 }
 
@@ -59,17 +59,17 @@ async function addAnswerToPoll(currentPoll, answerData) {
   const userSelectiveAnswerOptions = {
     ...(isMultiple ? { answer: answerData.answer } : {}),
     userId: answerData.userId,
-    pollId: currentPoll.id
+    pollId: currentPoll.id,
   };
 
   const currentAnswer = await models.PollAnswer.findOne({
     where: userSelectiveAnswerOptions,
-    raw: true
+    raw: true,
   });
 
   if (currentAnswer && answerData.answer === currentAnswer.answer) {
     return models.PollAnswer.destroy({
-      where: userSelectiveAnswerOptions
+      where: userSelectiveAnswerOptions,
     });
   }
   if (currentAnswer && answerData.answer !== currentAnswer.answer) {
@@ -82,7 +82,7 @@ async function addAnswerToPoll(currentPoll, answerData) {
     return models.db.transaction(transaction => {
       return models.PollAnswer.destroy({
         transaction,
-        where: userSelectiveAnswerOptions
+        where: userSelectiveAnswerOptions,
       }).then(() =>
         models.PollAnswer.create(answerData, { transaction }).then(m =>
           m.get({ plain: true })
@@ -96,5 +96,5 @@ async function addAnswerToPoll(currentPoll, answerData) {
 module.exports = {
   deletePoll,
   addAnswerToPoll,
-  readPollAnswers
+  readPollAnswers,
 };

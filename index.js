@@ -1,5 +1,6 @@
 const express = require('express');
 const morgan = require('morgan');
+
 const config = require('./config');
 const controller = require('./controller');
 
@@ -19,6 +20,7 @@ app.post('/poll', controller.pollPost);
 app.post('/hook', controller.hookPost);
 
 module.exports = app;
+
 app.listen(port, () => {
   // eslint-disable-next-line no-console
   console.log(`=>> App listen on ${port}`);

@@ -2,7 +2,7 @@ const Sequelize = require('sequelize');
 const config = require('./config');
 const constants = require('./constants');
 
-const db = config.DATABASE_URL
+const sequelize = config.DATABASE_URL
   ? new Sequelize(config.DATABASE_URL, { logging: false })
   : new Sequelize('yellowpoll', null, null, {
       dialect: 'sqlite',
@@ -10,7 +10,7 @@ const db = config.DATABASE_URL
       logging: false,
     });
 
-const PollModel = db.define(
+const PollModel = sequelize.define(
   'polls',
   {
     text: { type: Sequelize.STRING },
@@ -30,7 +30,7 @@ const PollModel = db.define(
   }
 );
 
-const PollAnswerModel = db.define(
+const PollAnswerModel = sequelize.define(
   'poll_answers',
   {
     answer: { type: Sequelize.STRING },
@@ -42,11 +42,11 @@ const PollAnswerModel = db.define(
   }
 );
 
-db.sync();
+sequelize.sync();
 
 PollAnswerModel.belongsTo(PollModel);
 
-const Poll = db.models.polls;
-const PollAnswer = db.models.poll_answers;
+const Poll = sequelize.models.polls;
+const PollAnswer = sequelize.models.poll_answers;
 
-module.exports = { Poll, PollAnswer, db };
+module.exports = { Poll, PollAnswer, sequelize };

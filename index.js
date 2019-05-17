@@ -18,6 +18,7 @@ app.use(
 // Route controllers
 app.post('/poll', controller.pollPost);
 app.post('/hook', controller.hookPost);
+app.get('/ping', (req, res) => res.json({ on: true }));
 
 module.exports = app;
 

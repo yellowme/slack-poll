@@ -1,3 +1,6 @@
+const formatters = require('./formatters');
+const constants = require('./constants');
+
 function chunkArray(array, limit, res = []) {
   if (!limit) throw new Error('No chunk size defined');
   if (array.length === 0) return res;
@@ -20,8 +23,24 @@ function cleanDoubleQuotes(text) {
   return replaceAll(replaceAll(text, '\u201D', '"'), '\u201C', '"');
 }
 
+function parsePollData(bodyText) {
+  const parseDataFromBody = formatters.extractElementsFromSlackText(
+    cleanDoubleQuotes(bodyText)
+  );
+
+  const emojis =
+    parseDataFromBody.options.length > 10
+      ? constants.emojis
+      : constants.fallbackEmojis;
+
+  const title = `${parseDataFromBody.question}\n\n`;
+  const options = formatters.reducePollOptionsString(parseDataFromBody, emojis);
+  return { emojis, title, options };
+}
+
 module.exports = {
   chunkArray,
   replaceAll,
   cleanDoubleQuotes,
+  parsePollData,
 };

@@ -45,7 +45,7 @@ const models = jest.mock('../../models', () => {
 
 const server = require('../../server');
 
-describe('express poll server', () => {
+describe('POST /hook', () => {
   beforeEach(() => {
     moxios.install();
 
@@ -64,127 +64,125 @@ describe('express poll server', () => {
     moxios.uninstall();
   });
 
-  describe('POST /hook', () => {
-    models.fn().mockImplementation(() => {
-      // eslint-disable-next-line global-require
-      const Sequelize = require('sequelize-mock');
-      const sequelize = new Sequelize();
+  models.fn().mockImplementation(() => {
+    // eslint-disable-next-line global-require
+    const Sequelize = require('sequelize-mock');
+    const sequelize = new Sequelize();
 
-      const PollModel = sequelize.define(
-        'polls',
-        {
-          text: MOCK_SLASH_COMMAND_TEXT,
-          owner: MOCK_USER_ID,
-          channel: MOCK_CHANNEL_ID,
-          titleTs: Date.now(),
-          mode: 's',
+    const PollModel = sequelize.define(
+      'polls',
+      {
+        text: MOCK_SLASH_COMMAND_TEXT,
+        owner: MOCK_USER_ID,
+        channel: MOCK_CHANNEL_ID,
+        titleTs: Date.now(),
+        mode: 's',
+      },
+      {
+        timestamps: true,
+      }
+    );
+
+    const PollAnswerModel = sequelize.define('poll_answers');
+
+    const Poll = sequelize.models.polls;
+    const PollAnswer = sequelize.models.poll_answers;
+
+    PollAnswerModel.belongsTo(PollModel);
+
+    return {
+      Poll,
+      PollAnswer,
+      sequelize,
+    };
+  });
+
+  test('answer an option by selection a slack poll action', async () => {
+    const requestBody = {
+      payload: JSON.stringify({
+        token: SLACK_VERIFICATION_TOKEN,
+        type: 'interactive_message',
+        user: {
+          name: MOCK_USER_ID,
+          id: MOCK_USER_ID,
         },
-        {
-          timestamps: true,
-        }
-      );
-
-      const PollAnswerModel = sequelize.define('poll_answers');
-
-      const Poll = sequelize.models.polls;
-      const PollAnswer = sequelize.models.poll_answers;
-
-      PollAnswerModel.belongsTo(PollModel);
-
-      return {
-        Poll,
-        PollAnswer,
-        sequelize,
-      };
-    });
-
-    test('answer an option by selection a slack poll action', async () => {
-      const requestBody = {
-        payload: JSON.stringify({
-          token: SLACK_VERIFICATION_TOKEN,
-          type: 'interactive_message',
-          user: {
-            name: MOCK_USER_ID,
-            id: MOCK_USER_ID,
+        channel: {
+          id: MOCK_CHANNEL_ID,
+        },
+        actions: [
+          {
+            value: '1',
           },
-          channel: {
-            id: MOCK_CHANNEL_ID,
-          },
-          actions: [
-            {
-              value: '1',
-            },
-          ],
-        }),
+        ],
+      }),
+      token: SLACK_VERIFICATION_TOKEN,
+      user_id: MOCK_USER_ID,
+      channel_id: MOCK_CHANNEL_ID,
+    };
+
+    return request(server)
+      .post('/hook')
+      .send(requestBody)
+      .expect(201);
+  });
+
+  test('deny a non owner to delete a poll', async () => {
+    const requestBody = {
+      payload: JSON.stringify({
+        callback_id: MOCK_POLL_ID,
         token: SLACK_VERIFICATION_TOKEN,
-        user_id: MOCK_USER_ID,
-        channel_id: MOCK_CHANNEL_ID,
-      };
-
-      return request(server)
-        .post('/hook')
-        .send(requestBody)
-        .expect(201);
-    });
-
-    test('deny a non owner to delete a poll', async () => {
-      const requestBody = {
-        payload: JSON.stringify({
-          callback_id: MOCK_POLL_ID,
-          token: SLACK_VERIFICATION_TOKEN,
-          type: 'interactive_message',
-          user: {
-            name: 'test2',
-            id: 'test2',
+        type: 'interactive_message',
+        user: {
+          name: 'test2',
+          id: 'test2',
+        },
+        channel: {
+          id: MOCK_CHANNEL_ID,
+        },
+        actions: [
+          {
+            value: 'cancel-null',
           },
-          channel: {
-            id: MOCK_CHANNEL_ID,
-          },
-          actions: [
-            {
-              value: 'cancel-null',
-            },
-          ],
-        }),
+        ],
+      }),
+      token: SLACK_VERIFICATION_TOKEN,
+      user_id: 'test2',
+      channel_id: MOCK_CHANNEL_ID,
+    };
+
+    return request(server)
+      .post('/hook')
+      .send(requestBody)
+      .expect(204);
+  });
+
+  test('deletes a poll', async () => {
+    const requestBody = {
+      payload: JSON.stringify({
+        callback_id: MOCK_POLL_ID,
         token: SLACK_VERIFICATION_TOKEN,
-        user_id: 'test2',
-        channel_id: MOCK_CHANNEL_ID,
-      };
-
-      return request(server)
-        .post('/hook')
-        .send(requestBody)
-        .expect(204);
-    });
-
-    test('deletes a poll', async () => {
-      const requestBody = {
-        payload: JSON.stringify({
-          callback_id: MOCK_POLL_ID,
-          token: SLACK_VERIFICATION_TOKEN,
-          type: 'interactive_message',
-          user: {
-            name: MOCK_USER_ID,
-            id: MOCK_USER_ID,
+        type: 'interactive_message',
+        user: {
+          name: MOCK_USER_ID,
+          id: MOCK_USER_ID,
+        },
+        channel: {
+          id: MOCK_CHANNEL_ID,
+        },
+        actions: [
+          {
+            value: 'cancel-null',
           },
-          channel: {
-            id: MOCK_CHANNEL_ID,
-          },
-          actions: [
-            {
-              value: 'cancel-null',
-            },
-          ],
-        }),
-        token: SLACK_VERIFICATION_TOKEN,
-        user_id: MOCK_USER_ID,
-        channel_id: MOCK_CHANNEL_ID,
-      };
+        ],
+      }),
+      token: SLACK_VERIFICATION_TOKEN,
+      user_id: MOCK_USER_ID,
+      channel_id: MOCK_CHANNEL_ID,
+    };
 
-      return request(server)
-        .post('/hook')
-        .send(requestBody)
-        .expect(201);
-    });
+    return request(server)
+      .post('/hook')
+      .send(requestBody)
+      .expect(201);
   });
 });

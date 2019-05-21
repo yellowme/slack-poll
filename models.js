@@ -13,7 +13,7 @@ const db = config.DATABASE_URL
 const PollModel = db.define(
   'polls',
   {
-    text: { type: Sequelize.STRING },
+    text: { type: Sequelize.TEXT('long') },
     owner: { type: Sequelize.STRING },
     channel: { type: Sequelize.STRING },
     titleTs: { type: Sequelize.STRING },

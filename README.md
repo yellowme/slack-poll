@@ -19,7 +19,7 @@ To integrate into your Slack workspace, you will need to create a [Slack App](ht
 
 Initialize `.env` file with
 - `DATABASE_URL` (if SQLite ignore `DATABASE_URL`)
-- `SLACK_VERIFICATION_TOKEN`, `SLACK_VERIFICATION_TOKEN` from your SlackApp
+- `SLACK_VERIFICATION_TOKEN`, `SLACK_ACCESS_TOKEN` from your SlackApp
 
 ```
 cp .env.example .env
@@ -30,7 +30,7 @@ npm start
 
 Generating Migrations
 ```sh
-node_modules/.bin/sequelize migration:generate --name <migration_name>
+./node_modules/.bin/sequelize migration:generate --name <migration_name>
 ```
 
 Running daemon

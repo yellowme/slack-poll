@@ -5,80 +5,102 @@ const slackApi = require('./slack');
 
 const { Poll, PollAnswer, sequelize } = models;
 
+async function readPollAnswers(poll) {
+  return PollAnswer.findAll({
+    where: { pollId: poll.id },
+    raw: true,
+  });
+}
+
+async function updatePollWithAnswers(channelId, ts, messageBody) {
+  return slackApi('chat.update', 'POST', {
+    ts,
+    ...messageBody,
+    link_names: 1,
+    parse: 'full',
+    channel: channelId,
+  });
+}
+
+function publishPoll(channelId, messageBody) {
+  return slackApi('chat.postMessage', 'POST', {
+    ...messageBody,
+    channel: channelId,
+    username: 'Yellow Poll',
+  });
+}
+
 // Delete remote messages
 // Delete local registry
-async function deletePoll(currentPoll) {
+async function deletePoll(poll) {
   await Promise.all([
     slackApi('chat.delete', 'POST', {
-      channel: currentPoll.channel,
-      ts: currentPoll.buttonDeleteTs,
+      channel: poll.channel,
+      ts: poll.buttonDeleteTs,
     }),
     slackApi('chat.delete', 'POST', {
-      channel: currentPoll.channel,
-      ts: currentPoll.buttons2Ts,
+      channel: poll.channel,
+      ts: poll.buttons2Ts,
     }),
     slackApi('chat.delete', 'POST', {
-      channel: currentPoll.channel,
-      ts: currentPoll.buttonsTs,
+      channel: poll.channel,
+      ts: poll.buttonsTs,
     }),
     slackApi('chat.delete', 'POST', {
-      channel: currentPoll.channel,
-      ts: currentPoll.optionsTs,
+      channel: poll.channel,
+      ts: poll.optionsTs,
     }),
     slackApi('chat.delete', 'POST', {
-      channel: currentPoll.channel,
-      ts: currentPoll.titleTs,
+      channel: poll.channel,
+      ts: poll.titleTs,
     }),
   ]);
 
   return sequelize.transaction(transaction => {
     return PollAnswer.destroy(
       {
-        where: { pollId: currentPoll.id },
+        where: { pollId: poll.id },
       },
       {
         transaction,
       }
     ).then(() => {
       return Poll.destroy({
-        where: { id: currentPoll.id },
+        where: { id: poll.id },
       });
     });
   });
 }
 
-function readPollAnswers(currentPoll) {
-  return PollAnswer.findAll({
-    where: { pollId: currentPoll.id },
-    raw: true,
-  });
-}
-
-async function createPlainPollResponse(pollAnswerData, options = {}) {
-  const pollAnswerInstance = await PollAnswer.create(pollAnswerData, options);
-  return pollAnswerInstance.get({ plain: true });
-}
-
 // Create answer by given poll
-// Requires a sequelize transaction
-async function addAnswerToPoll(currentPoll, answerData, transaction) {
-  const isMultiple = currentPoll.mode === constants.pollMode.MULTIPLE;
+// Requires a sequelize transaction if the remote request to Slack fails
+async function addAnswerToPoll(poll, answerData, transaction) {
+  async function createPlainPollResponse(pollAnswerData) {
+    const pollAnswerInstance = await PollAnswer.create(pollAnswerData, {
+      transaction,
+    });
+
+    return pollAnswerInstance.get({ plain: true });
+  }
+
+  const isMultiple = poll.mode === constants.pollMode.MULTIPLE;
 
   // if is multiple prevent user to repeat the same answer
   // If not just verify if the user has already an answer
   const userSelectiveAnswerOptions = {
     ...(isMultiple ? { answer: answerData.answer } : {}),
     userId: answerData.userId,
-    pollId: currentPoll.id,
+    pollId: poll.id,
   };
 
-  const currentAnswer = await PollAnswer.findOne({
+  const currentAnswerInstance = await PollAnswer.findOne({
     where: userSelectiveAnswerOptions,
-    raw: true,
   });
 
-  if (!currentAnswer) {
-    return createPlainPollResponse(answerData, { transaction });
+  const currentAnswer = await currentAnswerInstance.get({ plain: true });
+
+  if (!currentAnswerInstance) {
+    return createPlainPollResponse(answerData);
   }
 
   // if user has made already an answer
@@ -93,32 +115,14 @@ async function addAnswerToPoll(currentPoll, answerData, transaction) {
 
   // If the poll is multiple and user has not repeating answer
   // Just create a new poll response
-  if (currentPoll.mode === constants.pollMode.MULTIPLE) {
-    return createPlainPollResponse(answerData, { transaction });
+  if (poll.mode === constants.pollMode.MULTIPLE) {
+    return createPlainPollResponse(answerData);
   }
 
   // if is single poll
   // delete any other user poll responses and create a single one
-  await currentAnswer.destroy({ transaction });
-  return createPlainPollResponse(answerData, { transaction });
-}
-
-function updatePollWithAnswers(channelId, currentPoll, parsedPollData) {
-  return slackApi('chat.update', 'POST', {
-    ...utils.buildMessageTemplate(currentPoll, parsedPollData),
-    link_names: 1,
-    parse: 'full',
-    channel: channelId,
-    ts: currentPoll.titleTs,
-  });
-}
-
-function publishPoll(channelId, currentPoll, parsedPollData) {
-  return slackApi('chat.postMessage', 'POST', {
-    ...utils.messageTemplate(currentPoll, parsedPollData),
-    channel: channelId,
-    username: 'Yellow Poll',
-  });
+  await currentAnswerInstance.destroy({ transaction });
+  return createPlainPollResponse(answerData);
 }
 
 module.exports = {

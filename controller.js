@@ -1,5 +1,4 @@
 const config = require('./config');
-const formatters = require('./formatters');
 const models = require('./models');
 const api = require('./api');
 const utils = require('./utils');
@@ -18,7 +17,8 @@ async function pollPost(req, res) {
       .json({ errors: ['Request is not signed correctly!'] });
   }
 
-  const pollData = utils.parsePollData(req.body.text);
+  const rawSlaskCommandString = req.body.text;
+  const pollData = utils.extractPollData(rawSlaskCommandString);
 
   return sequelize.transaction(async transaction => {
     const createdPoll = await Poll.create(
@@ -34,10 +34,18 @@ async function pollPost(req, res) {
     );
 
     try {
+      const messageTemplate = utils.buildMessageTemplate({
+        id: createdPoll.id,
+        mode: createdPoll.mode,
+        title: pollData.title,
+        options: pollData.options,
+        optionsString: pollData.optionsString,
+        emojis: pollData.emojis,
+      });
+
       const postMessageResponse = await api.publishPoll(
         req.body.channel_id,
-        createdPoll,
-        pollData
+        messageTemplate
       );
 
       await Poll.update(
@@ -52,9 +60,17 @@ async function pollPost(req, res) {
         }
       );
 
+      if (config.NODE_ENV === 'test') {
+        const poll = await createdPoll.get({ plain: true });
+        return res.status(201).json({
+          ...poll,
+          titleTs: postMessageResponse.ts,
+        });
+      }
+
       return res.status(201).send();
     } catch (err) {
-      transaction.rollback();
+      if (transaction.rollback) transaction.rollback();
       return res.status(403).send();
     }
   });
@@ -68,16 +84,15 @@ async function hookPost(req, res) {
   if (!req.body) return res.status(400).send('Empty body');
   const body = JSON.parse(req.body.payload);
 
-  // Need to validate header signature wtih slack token
+  // validate header signature wtih slack token
   if (body.token !== config.SLACK_VERIFICATION_TOKEN) {
     return res.status(403).send('Request is not signed correctly!');
   }
 
   // https://api.slack.com/docs/interactive-message-field-guide
-  if (body.type !== 'interactive_message') return res.status(201).send();
+  if (body.type !== 'interactive_message') return res.status(403).send();
   const currentPollInstance = await Poll.findById(body.callback_id);
   const currentPoll = await currentPollInstance.get({ plain: true });
-
   if (!currentPoll) throw new Error('Unexisting poll!');
 
   // Delete poll by request (only if owner)
@@ -102,18 +117,31 @@ async function hookPost(req, res) {
       );
 
       // Regenerates poll message with updated answers
-      const pollData = utils.parsePollData(currentPoll.text);
+      const pollData = utils.extractPollData(currentPoll.text);
       const currentPollAnswers = await api.readPollAnswers(currentPoll);
-      const pollOptions = formatters.reducePollEnhancedOptionsString(
-        pollData.messageItems,
+
+      const pollOptions = utils.reducePollEnhancedOptionsString(
+        pollData,
         currentPollAnswers,
         pollData.emojis
       );
 
-      return api.updatePollWithAnswers(body.channel.id, currentPoll, {
-        ...pollData,
-        options: pollOptions,
+      const messageBody = utils.buildMessageTemplate({
+        id: currentPoll.id,
+        mode: currentPoll.mode,
+        title: pollData.title,
+        options: pollData.options,
+        optionsString: pollOptions,
+        emojis: pollData.emojis,
       });
+
+      await api.updatePollWithAnswers(
+        body.channel.id,
+        currentPoll.ts,
+        messageBody
+      );
+
+      return res.status(201).send();
     } catch (err) {
       transaction.rollback();
       return res.status(403).send();

@@ -1,6 +1,6 @@
 {
   "testPathIgnorePatterns": ["/node_modules/"],
-  "setupFiles": ["./jest/sequelize.js", "./jest/dotenv.js"],
+  "setupFiles": ["./jest/dotenv.js"],
   "collectCoverage": true,
   "coverageThreshold": {
     "global": {

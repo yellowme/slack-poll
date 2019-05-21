@@ -8,6 +8,7 @@ const {
   DATABASE_URL,
   SLACK_VERIFICATION_TOKEN,
   SLACK_ACCESS_TOKEN,
+  NODE_ENV,
 } = process.env;
 
 const defaults = {
@@ -35,4 +36,5 @@ module.exports = {
   DATABASE_URL,
   SLACK_VERIFICATION_TOKEN,
   SLACK_ACCESS_TOKEN,
+  NODE_ENV,
 };

@@ -2,14 +2,34 @@ const models = require('../models');
 
 const { Poll, PollAnswer } = models;
 
+jest.mock('../models.js', () => {
+  // eslint-disable-next-line global-require
+  const Sequelize = require('sequelize-mock');
+  const sequelize = new Sequelize();
+
+  const PollModel = sequelize.define('polls');
+  const PollAnswerModel = sequelize.define('poll_answers');
+
+  const PollMock = sequelize.models.polls;
+  const PollAnswerMock = sequelize.models.poll_answers;
+
+  PollAnswerModel.belongsTo(PollModel);
+
+  return {
+    Poll: PollMock,
+    PollAnswer: PollAnswerMock,
+    sequelize,
+  };
+});
+
 describe('models.js', () => {
-  it('Poll', async () => {
+  test('Poll', async () => {
     const pollInstance = await Poll.create();
     const poll = await pollInstance.get({ plain: true });
     expect(poll.id).toBeDefined();
   });
 
-  it('PollAnswer', async () => {
+  test('PollAnswer', async () => {
     const pollInstance = await Poll.create();
     const poll = await pollInstance.get({ plain: true });
     expect(poll.id).toBeDefined();

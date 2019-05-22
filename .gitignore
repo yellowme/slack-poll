@@ -82,3 +82,6 @@ typings/
 *.sqlite
 
 package-lock\.json
+
+#VSCode Config
+.vscode/

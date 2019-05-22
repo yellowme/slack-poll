@@ -1,4 +1,5 @@
 # SlackPoll
+
 Slack bot that helps users to do polling and allows users.
 
 ![SlackPoll](/static/sample.png)
@@ -18,8 +19,11 @@ To integrate into your Slack workspace, you will need to create a [Slack App](ht
 - OAuth & Permissions > Scopes > Add permissions [`chat:write:bot`, `commands`, `reactions:write`]
 
 Initialize `.env` file with
+
 - `DATABASE_URL` (if SQLite ignore `DATABASE_URL`)
 - `SLACK_VERIFICATION_TOKEN`, `SLACK_ACCESS_TOKEN` from your SlackApp
+- (Optional) You can use `icon_emoji` list as a comma separed list with
+  `SLACK_MESSAGE_ICON_EMOJIS` env var to change the slack bot profile image, if you define more than one it will pick one randomly. iex: `one,two,three`
 
 ```
 cp .env.example .env
@@ -29,12 +33,13 @@ npm start
 ## Development
 
 Generating Migrations
+
 ```sh
 ./node_modules/.bin/sequelize migration:generate --name <migration_name>
 ```
 
 Running daemon
+
 ```sh
 npm run dev
 ```
-

@@ -7,6 +7,7 @@ const pollMode = {
 
 // Fallback emoji base
 const fallbackEmojis = [
+  'zero',
   'one',
   'two',
   'three',
@@ -16,7 +17,6 @@ const fallbackEmojis = [
   'seven',
   'eight',
   'nine',
-  'keycap_ten',
 ];
 
 module.exports = {

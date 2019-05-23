@@ -7,7 +7,8 @@ const {
   SLACK_BASE_URL = 'https://slack.com/api',
   DATABASE_URL,
   SLACK_VERIFICATION_TOKEN,
-  SLACK_ACCESS_TOKEN
+  SLACK_ACCESS_TOKEN,
+  SLACK_MESSAGE_ICON_EMOJIS = 'bar_chart'
 } = process.env;
 
 const defaults = {
@@ -29,5 +30,6 @@ module.exports = {
   SLACK_BASE_URL,
   DATABASE_URL,
   SLACK_VERIFICATION_TOKEN,
-  SLACK_ACCESS_TOKEN
+  SLACK_ACCESS_TOKEN,
+  SLACK_MESSAGE_ICON_EMOJIS
 };

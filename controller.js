@@ -6,6 +6,12 @@ const utils = require('./utils');
 const service = require('./service');
 const constants = require('./constants');
 
+// Format emojis with :: that slack needs to print an emojit
+// It will pick a random emoji from list on pollPost
+const iconEmojis = config.SLACK_MESSAGE_ICON_EMOJIS.split(',').map(
+  emoji => `:${emoji}:`
+);
+
 // Base message template from https://api.slack.com/docs/message-formatting
 function messageTemplate(messageData) {
   const { pollTitle, pollOptions, items, currentPoll, emojis } = messageData;
@@ -108,6 +114,7 @@ async function pollPost(req, res) {
     */
 
     const titleResponse = await slackApi('chat.postMessage', 'POST', {
+      icon_emoji: iconEmojis[Math.floor(Math.random() * iconEmojis.length)],
       ...messageTemplate({
         pollTitle,
         pollOptions,

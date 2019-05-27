@@ -1,7 +1,13 @@
-const emojiData = require('./emoji.json');
+const emojis = require('./emoji.json');
+
+const pollMode = {
+  SINGLE: 's',
+  MULTIPLE: 'm',
+};
 
 // Fallback emoji base
-const emojis = [
+const fallbackEmojis = [
+  'zero',
   'one',
   'two',
   'three',
@@ -11,14 +17,10 @@ const emojis = [
   'seven',
   'eight',
   'nine',
-  'keycap_ten'
 ];
 
 module.exports = {
-  fullEmoji: emojiData.map(e => e.short_name),
-  limitedEmoji: emojis,
-  pollMode: {
-    SINGLE: 's',
-    MULTIPLE: 'm'
-  }
+  emojis,
+  fallbackEmojis,
+  pollMode,
 };

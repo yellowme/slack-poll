@@ -11,6 +11,7 @@ const {
   NODE_ENV,
   SLACK_APP_DISPLAY_NAME = 'Yellow Poll',
   SLACK_MESSAGE_BAR_COLOR = '#ffd100',
+  SLACK_MESSAGE_ICON_EMOJIS = 'bar_chart',
 } = process.env;
 
 const defaults = {
@@ -41,4 +42,5 @@ module.exports = {
   NODE_ENV,
   SLACK_APP_DISPLAY_NAME,
   SLACK_MESSAGE_BAR_COLOR,
+  SLACK_MESSAGE_ICON_EMOJIS,
 };

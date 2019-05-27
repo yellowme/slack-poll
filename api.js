@@ -5,6 +5,12 @@ const config = require('./config');
 
 const { Poll, PollAnswer, sequelize } = models;
 
+// Format emojis with :: that slack needs to print an emojit
+// It will pick a random emoji from list on pollPost
+const iconEmojis = config.SLACK_MESSAGE_ICON_EMOJIS.split(',').map(
+  emoji => `:${emoji}:`
+);
+
 function readPollAnswers(poll) {
   return PollAnswer.findAll({
     where: {
@@ -27,6 +33,7 @@ function publishPoll(channelId, messageBody) {
     ...messageBody,
     channel: channelId,
     username: config.SLACK_APP_DISPLAY_NAME,
+    icon_emoji: iconEmojis[Math.floor(Math.random() * iconEmojis.length)],
   });
 }
 

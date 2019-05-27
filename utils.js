@@ -1,4 +1,5 @@
 const constants = require('./constants');
+const config = require('./config');
 
 function chunkArray(array, limit, res = []) {
   if (!limit) throw new Error('No chunk size defined');
@@ -97,7 +98,7 @@ function buildMessageTemplate(pollAssets) {
         fallback: pollAssets.title,
         title: pollAssets.title,
         callback_id: pollAssets.id,
-        color: '#ffd100',
+        color: config.SLACK_MESSAGE_BAR_COLOR,
         attachment_type: 'default',
         footer: `By: <@${pollAssets.owner}>, Mode: ${stringFromPollMode(
           pollAssets.mode
@@ -107,14 +108,14 @@ function buildMessageTemplate(pollAssets) {
         fallback: pollAssets.optionsString,
         text: pollAssets.optionsString,
         callback_id: pollAssets.id,
-        color: '#ffd100',
+        color: config.SLACK_MESSAGE_BAR_COLOR,
         attachment_type: 'default',
       },
       ...chunkArray(pollAssets.options, 5).map((chunk, chunkIndex) => ({
         fallback: '',
         title: '',
         callback_id: pollAssets.id,
-        color: '#ffd100',
+        color: config.SLACK_MESSAGE_BAR_COLOR,
         attachment_type: 'default',
         actions: chunk.map((option, index) => {
           const currentIndex = chunkIndex * 5 + index;
@@ -130,7 +131,7 @@ function buildMessageTemplate(pollAssets) {
         fallback: '',
         title: '',
         callback_id: pollAssets.id,
-        color: '#ffd100',
+        color: config.SLACK_MESSAGE_BAR_COLOR,
         attachment_type: 'default',
         actions: [
           {

@@ -1,6 +1,7 @@
 const models = require('./models');
 const constants = require('./constants');
 const slackApi = require('./slack');
+const config = require('./config');
 
 const { Poll, PollAnswer, sequelize } = models;
 
@@ -25,7 +26,7 @@ function publishPoll(channelId, messageBody) {
   return slackApi('chat.postMessage', 'POST', {
     ...messageBody,
     channel: channelId,
-    username: 'Yellow Poll',
+    username: config.SLACK_APP_DISPLAY_NAME,
   });
 }
 

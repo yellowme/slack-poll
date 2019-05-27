@@ -9,6 +9,8 @@ const {
   SLACK_VERIFICATION_TOKEN,
   SLACK_ACCESS_TOKEN,
   NODE_ENV,
+  SLACK_APP_DISPLAY_NAME = 'Yellow Poll',
+  SLACK_MESSAGE_BAR_COLOR = '#ffd100',
 } = process.env;
 
 const defaults = {
@@ -37,4 +39,6 @@ module.exports = {
   SLACK_VERIFICATION_TOKEN,
   SLACK_ACCESS_TOKEN,
   NODE_ENV,
+  SLACK_APP_DISPLAY_NAME,
+  SLACK_MESSAGE_BAR_COLOR,
 };

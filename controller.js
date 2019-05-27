@@ -41,6 +41,7 @@ async function pollPost(req, res) {
         options: pollData.options,
         optionsString: pollData.optionsString,
         emojis: pollData.emojis,
+        owner: req.body.user_id,
       });
 
       const postMessageResponse = await api.publishPoll(
@@ -54,6 +55,7 @@ async function pollPost(req, res) {
           titleTs: postMessageResponse.ts,
         },
         {
+          transaction,
           where: {
             id: createdPoll.id,
           },
@@ -106,15 +108,11 @@ async function hookPost(req, res) {
 
   return sequelize.transaction(async transaction => {
     try {
-      await api.addAnswerToPoll(
-        currentPoll,
-        {
-          answer: body.actions[0].value,
-          userId: body.user.id,
-          username: body.user.name,
-        },
-        transaction
-      );
+      await api.addAnswerToPoll(currentPoll, {
+        answer: body.actions[0].value,
+        userId: body.user.id,
+        username: body.user.name,
+      });
 
       // Regenerates poll message with updated answers
       const pollData = utils.extractPollData(currentPoll.text);
@@ -133,17 +131,18 @@ async function hookPost(req, res) {
         options: pollData.options,
         optionsString: pollOptions,
         emojis: pollData.emojis,
+        owner: currentPoll.owner,
       });
 
       await api.updatePollWithAnswers(
         body.channel.id,
-        currentPoll.ts,
+        currentPoll.titleTs,
         messageBody
       );
 
       return res.status(201).send();
     } catch (err) {
-      transaction.rollback();
+      if (transaction.rollback) transaction.rollback();
       return res.status(403).send();
     }
   });

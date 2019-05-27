@@ -72,7 +72,7 @@ function reducePollEnhancedOptionsString(items, currentPollAnswers, emojis) {
     );
 
     const usernamesString = allUserAnswers.reduce(
-      (baseText, user) => `${baseText} @${user.username}`,
+      (baseText, user) => `${baseText} <@${user.userId}>`,
       ''
     );
 
@@ -99,7 +99,9 @@ function buildMessageTemplate(pollAssets) {
         callback_id: pollAssets.id,
         color: '#ffd100',
         attachment_type: 'default',
-        footer: stringFromPollMode(pollAssets.mode),
+        footer: `By: <@${pollAssets.owner}>, Mode: ${stringFromPollMode(
+          pollAssets.mode
+        )}`,
       },
       {
         fallback: pollAssets.optionsString,

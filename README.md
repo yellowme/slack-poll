@@ -21,7 +21,8 @@ To integrate into your Slack workspace, you will need to create a [Slack App](ht
 Initialize `.env` file with
 
 - `DATABASE_URL` (if SQLite ignore `DATABASE_URL`)
-- `SLACK_VERIFICATION_TOKEN`, `SLACK_ACCESS_TOKEN` from your SlackApp
+- `SLACK_VERIFICATION_TOKEN` from Basic Information > App Credentials > Verification Token
+- `SLACK_ACCESS_TOKEN` from OAuth & Permissions > OAuth Tokens & Redirect URLs > Tokens for Your Workspace > OAuth Access Token
 - (Optional) You can define the poll display name in slack via `SLACK_MESSAGE_BAR_COLOR` _(default: <span style="color:#ffd100">#ffd100</span>)_
 - (Optional) You can define the poll side color from the message via `SLACK_APP_DISPLAY_NAME` _(default: Yellow Poll)_
 - (Optional) You can use `icon_emoji` list as a comma separed list with

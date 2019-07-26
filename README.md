@@ -7,7 +7,11 @@ Slack bot that helps users to do polling and allows users.
 ## Usage
 
 ```
-/poll "Question" "Option 1" "Option 2" -- encapsulate each individual option in double quotes
+Basic poll -- encapsulate each individual option in double quotes
+/poll "Question" "Option 1" "Option 2"
+
+Multi-Option poll -- add `-m` flag at the end
+/poll "Question" "Option 1" "Option 2" -m
 ```
 
 ## Instalation

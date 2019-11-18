@@ -1,9 +1,12 @@
 const request = require('supertest');
 const faker = require('faker');
 
+const createTestDatabase = require('../../../../jest/createTestDatabase');
 const createExpressServer = require('../server');
 
 test('creates a poll with slack command', async () => {
+  const sequelizeInstance = await createTestDatabase();
+
   const slackVerificationToken = faker.random.uuid();
   const expectedPollMode = 's'; // single
   const exctedUserId = faker.random.uuid();
@@ -17,7 +20,7 @@ test('creates a poll with slack command', async () => {
     channel_id: expectedSlackChannelId,
   };
 
-  const response = await request(createExpressServer())
+  const response = await request(createExpressServer(sequelizeInstance))
     .post('/poll')
     .send(requestBody);
 

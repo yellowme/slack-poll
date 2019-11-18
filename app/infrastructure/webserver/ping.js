@@ -1,13 +1,11 @@
 const express = require('express');
 
+const pingController = require('../../adapter/pingController');
+
 function createPingHandler() {
   const router = express.Router();
-  router.get('/ping', getPing);
+  router.get('/ping', pingController.getPing);
   return router;
-}
-
-function getPing(_, res) {
-  return res.json({ on: true });
 }
 
 module.exports = createPingHandler;

@@ -1,18 +1,14 @@
 const express = require('express');
 
-function createPollHandler() {
-  const router = express.Router();
-  router.post('/poll', postPoll);
-  return router;
-}
+const createPollController = require('../../adapter/pollController');
+const createPollRepository = require('../../adapter/pollRepositorySQLite');
 
-function postPoll(req, res) {
-  return res.status(201).json({
-    text: req.body.text,
-    channel: req.body.channel_id,
-    mode: 's',
-    owner: req.body.user_id,
-  });
+function createPollHandler(sequelize) {
+  const router = express.Router();
+  const pollRepository = createPollRepository(sequelize);
+  const pollController = createPollController(pollRepository);
+  router.post('/poll', pollController.postPoll);
+  return router;
 }
 
 module.exports = createPollHandler;

@@ -2,10 +2,12 @@ const request = require('supertest');
 const faker = require('faker');
 
 const createTestDatabase = require('../../../../jest/createTestDatabase');
+const createTestSlackApi = require('../../../../jest/createTestSlackApi');
 const createExpressServer = require('../server');
 
 test('creates a poll with slack command', async () => {
   const sequelizeInstance = await createTestDatabase();
+  const slackInstance = createTestSlackApi();
 
   const slackVerificationToken = faker.random.uuid();
   const expectedPollMode = 's'; // single
@@ -20,13 +22,10 @@ test('creates a poll with slack command', async () => {
     channel_id: expectedSlackChannelId,
   };
 
-  const response = await request(createExpressServer(sequelizeInstance))
+  const server = createExpressServer(sequelizeInstance, slackInstance);
+  const response = await request(server)
     .post('/poll')
     .send(requestBody);
 
   expect(response.status).toBe(201);
-  expect(response.body.text).toBe(requestBody.text);
-  expect(response.body.channel).toBe(requestBody.channel_id);
-  expect(response.body.mode).toBe(expectedPollMode);
-  expect(response.body.owner).toBe(requestBody.user_id);
 });

@@ -1,6 +1,14 @@
 function createPollModel(sequelize, DataTypes) {
   return sequelize.define('poll', {
     text: {
+      type: DataTypes.TEXT('long'),
+      allowNull: false,
+    },
+    question: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    options: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -11,6 +19,9 @@ function createPollModel(sequelize, DataTypes) {
     channel: {
       type: DataTypes.STRING,
       allowNull: false,
+    },
+    timestamp: {
+      type: DataTypes.STRING,
     },
     mode: {
       type: DataTypes.ENUM('s', 'm'),

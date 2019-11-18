@@ -1,8 +1,8 @@
 const Poll = require('../domain/poll');
 
-function createCreatePollUseCase(pollRepository) {
-  return function createPoll({ text, channel, owner }) {
-    const poll = Poll({ text, channel, owner });
+function createCreatePollUseCase({ pollRepository }) {
+  return function createPoll(pollData) {
+    const poll = Poll(pollData);
     return pollRepository.insert(poll);
   };
 }

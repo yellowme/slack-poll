@@ -1,5 +1,6 @@
 const axios = require('axios');
-const config = require('./config');
+
+const config = require('../config');
 
 module.exports = function slackApi(url, method, data) {
   return axios({

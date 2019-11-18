@@ -1,12 +1,11 @@
 {
   "testPathIgnorePatterns": ["/node_modules/"],
-  "setupFiles": ["./jest/dotenv.js"],
   "collectCoverage": true,
   "coverageThreshold": {
     "global": {
-      "branches": 80,
-      "functions": 80,
-      "lines": 80
+      "branches": 95,
+      "functions": 95,
+      "lines": 95
     }
   }
 }

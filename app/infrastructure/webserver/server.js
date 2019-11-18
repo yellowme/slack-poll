@@ -4,7 +4,7 @@ const morgan = require('morgan');
 const createPingHandler = require('./ping');
 const createPollHandler = require('./poll');
 
-function createExpressServer(sequelize) {
+function createExpressServer(sequelize, slack) {
   const app = express();
 
   // App config
@@ -16,7 +16,7 @@ function createExpressServer(sequelize) {
 
   // Routes
   app.use(createPingHandler());
-  app.use(createPollHandler(sequelize));
+  app.use(createPollHandler(sequelize, slack));
 
   return app;
 }

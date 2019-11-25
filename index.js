@@ -1,15 +1,17 @@
 const config = require('./app/config');
 
-const createSequelizeDatabase = require('./app/infrastructure/database/sequelize');
+// const createSQLiteDatabase = require('./app/infrastructure/sqlite/sequelize');
+const createPostgreSQLDatabase = require('./app/infrastructure/postgresql/sequelize');
 const createExpressServer = require('./app/infrastructure/webserver/server');
 const slack = require('./app/infrastructure/slack');
 
-const createPollsRepository = require('./app/interfaces/repositories/pollRepositorySQLite');
+// const createPollsRepository = require('./app/interfaces/repositories/pollRepositorySQLite');
+const createPollsRepository = require('./app/interfaces/repositories/pollsRepositoryPostgreSQL');
 const createPollsPresenter = require('./app/interfaces/presenters/pollsPresenterSlack');
 
 async function createApplication() {
   // Sync database
-  const sequelize = createSequelizeDatabase();
+  const sequelize = createPostgreSQLDatabase();
   await sequelize.sync();
 
   // Build data stores and interfaces

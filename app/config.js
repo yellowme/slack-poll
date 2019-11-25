@@ -19,21 +19,16 @@ const defaults = {
   SLACK_ACCESS_TOKEN: null,
 };
 
-function verifyEnv(defaultEnv, currentEnv) {
-  // Alert to fill the necessary environment variables
-  Object.keys(defaultEnv).forEach(key => {
-    if (!currentEnv[key]) {
-      throw new Error(
-        `Please enter a custom ${key} in .env on the root directory`
-      );
-    }
-  });
-}
-
-verifyEnv(defaults, process.env);
+// Alert to fill the necessary environment variables
+Object.keys(defaults).forEach(key => {
+  if (!process.env[key]) {
+    throw new Error(
+      `Please enter a custom ${key} in .env on the root directory`
+    );
+  }
+});
 
 module.exports = {
-  _verifyEnv: verifyEnv,
   PORT,
   SLACK_BASE_URL,
   DATABASE_URL,

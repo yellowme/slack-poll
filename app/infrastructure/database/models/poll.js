@@ -18,6 +18,9 @@ function createPollModel(sequelize, DataTypes) {
       type: DataTypes.STRING,
       allowNull: false,
     },
+    timestamp: {
+      type: DataTypes.STRING,
+    },
     mode: {
       type: DataTypes.ENUM('s', 'm'),
       defaultValue: 's',

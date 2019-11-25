@@ -21,10 +21,10 @@ async function setUpSuite() {
 test('creates a poll with slack command', async () => {
   const { server, pollsPresenter, pollsRepository } = await setUpSuite();
 
+  const slackVerificationToken = 'slack_verification_token';
   const expectedQuestion = faker.lorem.word();
   const expectedOption = faker.lorem.word();
   const slashCommand = `"${expectedQuestion}" "${expectedOption}" "${expectedOption}"`;
-  const slackVerificationToken = faker.random.uuid();
   const exctedUserId = faker.random.uuid();
   const expectedSlackChannelId = faker.random.uuid();
 
@@ -40,16 +40,14 @@ test('creates a poll with slack command', async () => {
     .send(requestBody);
 
   expect(response.status).toBe(201);
-  expect(pollsPresenter.send.mock.calls[0][0].attachments[0].title).toBe(
-    expectedQuestion
+
+  const pollsPresenterCalls = pollsPresenter.send.mock.calls[0][0];
+  expect(pollsPresenterCalls.attachments[0].title).toBe(expectedQuestion);
+  expect(pollsPresenterCalls.attachments[1].text).toBe(
+    `:zero: ${expectedOption} \n\n:one: ${expectedOption} \n\n`
   );
-  expect(pollsPresenter.send.mock.calls[0][0].attachments[1].title).toBe(
-    [expectedOption, expectedOption].join(', ')
-  );
-  expect(pollsRepository.insert.mock.calls[0][0].question).toBe(
-    expectedQuestion
-  );
-  expect(pollsRepository.insert.mock.calls[0][0].options[0]).toBe(
-    expectedOption
-  );
+
+  const pollsRepositoryInsertCalls = pollsRepository.insert.mock.calls[0][0];
+  expect(pollsRepositoryInsertCalls.question).toBe(expectedQuestion);
+  expect(pollsRepositoryInsertCalls.options[0]).toBe(expectedOption);
 });

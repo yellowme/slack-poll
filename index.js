@@ -1,12 +1,13 @@
+const config = require('./app/config');
+
 const createSequelizeDatabase = require('./app/infrastructure/database/sequelize');
 const createExpressServer = require('./app/infrastructure/webserver/server');
 const slack = require('./app/infrastructure/slack');
-const config = require('./app/infrastructure/config');
 
 const createPollsRepository = require('./app/interfaces/repositories/pollRepositorySQLite');
 const createPollsPresenter = require('./app/interfaces/presenters/pollsPresenterSlack');
 
-async function main() {
+async function createApplication() {
   // Sync database
   const sequelize = createSequelizeDatabase();
   await sequelize.sync();
@@ -18,8 +19,14 @@ async function main() {
   // Create Webserver
   const server = createExpressServer({ pollsRepository, pollsPresenter });
 
+  return server;
+}
+
+async function main() {
+  const application = await createApplication();
+
   // Run
-  server.listen(config.PORT, () => {
+  application.listen(config.PORT, () => {
     // eslint-disable-next-line no-console
     console.log(`=>> App listen on ${config.PORT}`);
   });

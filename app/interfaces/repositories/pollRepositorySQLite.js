@@ -1,21 +1,36 @@
 function createPollRepository(sequelize) {
-  async function insert({ options, ...data }) {
-    const { models } = sequelize;
+  const { models } = sequelize;
 
-    const pollRecord = await models.poll.create({
+  async function insert({ options = [], ...data }) {
+    // SQL does not support array, so it's converted to string
+    const record = await models.poll.create({
       ...data,
       options: options.join(','),
     });
 
-    const poll = pollRecord.toJSON();
+    const plainRecord = record.toJSON();
+
+    // And converted back to array
     return {
-      ...poll,
-      options: poll.options.split(','),
+      ...plainRecord,
+      options: plainRecord.options.split(','),
     };
+  }
+
+  async function update(id, { options, ...data }) {
+    if (options) {
+      options = options.join(',');
+      data.options = options;
+    }
+
+    await models.poll.update(data, { where: { id } });
+    const record = await models.poll.findOne({ where: { id } });
+    return record.toJSON();
   }
 
   return {
     insert,
+    update,
   };
 }
 

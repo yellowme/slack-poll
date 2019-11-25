@@ -1,6 +1,8 @@
 {
-  "testPathIgnorePatterns": ["/node_modules/"],
+  "testPathIgnorePatterns": ["/node_modules/", "/test/"],
+  "setupFiles": ["./test/config.js"],
   "collectCoverage": true,
+  "coveragePathIgnorePatterns": ["/node_modules/", "/test/"],
   "coverageThreshold": {
     "global": {
       "branches": 95,

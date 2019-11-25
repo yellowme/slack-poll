@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const config = require('../config');
+const config = require('../../config');
 
 module.exports = function slackApi(url, method, data) {
   return axios({
@@ -12,5 +12,5 @@ module.exports = function slackApi(url, method, data) {
       Authorization: `Bearer ${config.SLACK_ACCESS_TOKEN}`,
       'Content-Type': 'application/json; charset=utf-8',
     },
-  }).then(response => response.data);
+  });
 };

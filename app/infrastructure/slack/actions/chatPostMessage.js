@@ -1,4 +1,4 @@
-const slackApi = require('./client');
+const slackApi = require('../client');
 
 function chatPostMessage(data) {
   return slackApi('chat.postMessage', 'POST', data);

@@ -1,4 +1,4 @@
-const chatPostMessage = require('./chatPostMessage');
+const chatPostMessage = require('./actions/chatPostMessage');
 
 module.exports = {
   chatPostMessage,

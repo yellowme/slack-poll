@@ -1,20 +1,10 @@
-function createPoll({
-  text,
-  question,
-  options,
-  owner,
-  channel,
-  timestamp,
-  mode = 's',
-}) {
+function createPoll({ id, options, owner, question, mode = 's' }) {
   return {
-    text,
-    question,
-    options,
-    channel,
+    id,
     mode,
+    options,
     owner,
-    timestamp,
+    question,
   };
 }
 

@@ -1,14 +1,16 @@
-function pollSerializer({ text, channel_id, user_id }) {
+const Poll = require('../../domain/poll');
+
+function pollsStringSerializer(text, user_id) {
   const pollData = extractPollDataFromCommand(text);
 
-  return {
-    text,
-    question: pollData.question,
+  const poll = Poll({
     options: pollData.options,
-    channel: channel_id,
     mode: pollData.mode,
     owner: user_id,
-  };
+    question: pollData.question,
+  });
+
+  return poll;
 }
 
 function extractPollDataFromCommand(command) {
@@ -32,6 +34,4 @@ function removeDoubleCuotes(string) {
   return string.replace('/\u201D/g', '"').replace('/\u201C/g', '"');
 }
 
-module.exports = {
-  serialize: pollSerializer,
-};
+module.exports = pollsStringSerializer;

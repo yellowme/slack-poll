@@ -6,6 +6,7 @@ const rateLimit = require('express-rate-limit');
 
 const createStatusHandler = require('./status');
 const createPollsHandler = require('./polls');
+const createPollAnswerHandler = require('./hook');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -13,7 +14,11 @@ const limiter = rateLimit({
 });
 
 // Build express application and return express instance
-function createExpressServer({ pollsRepository, pollsPresenter }) {
+function createExpressServer({
+  pollsRepository,
+  pollAnswersRepository,
+  pollsPresenter,
+}) {
   const app = express();
 
   // TODO: Add helmet
@@ -30,6 +35,7 @@ function createExpressServer({ pollsRepository, pollsPresenter }) {
   // Attatch route handlers
   app.use(createStatusHandler());
   app.use(createPollsHandler({ pollsRepository, pollsPresenter }));
+  app.use(createPollAnswerHandler({ pollAnswersRepository }));
 
   return app;
 }

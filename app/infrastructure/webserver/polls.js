@@ -14,7 +14,6 @@ function createPollsHandler({ pollsRepository, pollsPresenter }) {
 
   // Attatch route controller
   router.post('/polls', pollsController.postPoll);
-
   return router;
 }
 

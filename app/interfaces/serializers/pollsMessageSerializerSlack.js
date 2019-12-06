@@ -101,8 +101,8 @@ function createAttachment({
   return {
     fallback,
     title,
-    // callback_id,
-    // color,
+    callback_id,
+    color,
     attachment_type,
     footer,
     ...options,

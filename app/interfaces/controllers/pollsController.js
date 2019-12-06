@@ -2,7 +2,6 @@ const config = require('../../config');
 
 const createCreatePollUseCase = require('../../application/useCase/createPoll');
 const createStorePollPresenterTimestampUseCase = require('../../application/useCase/storePollPresenterTimestamp');
-
 const pollsMessageSerializerSlack = require('../serializers/pollsMessageSerializerSlack');
 const pollsStringSerializer = require('../serializers/pollsStringSerializer');
 

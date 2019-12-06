@@ -1,6 +1,8 @@
 const { Sequelize } = require('sequelize');
 
-const sequelize = new Sequelize('sqlite::memory:');
+const sequelize = new Sequelize('sqlite::memory:', {
+  logging: false,
+});
 
 async function createSequelizeTestDatabase() {
   const PollModel = sequelize.import('./models/poll.js');

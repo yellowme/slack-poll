@@ -1,6 +1,14 @@
 function createPollRepository(sequelize) {
   const { models } = sequelize;
 
+  async function _find(options) {
+    return (
+      await models.poll.findAll({
+        where: options,
+      })
+    ).map(record => record.toJSON());
+  }
+
   async function _insert({ options = [], ...data }) {
     // SQL does not support array, so it's converted to string
     const record = await models.poll.create({
@@ -29,6 +37,7 @@ function createPollRepository(sequelize) {
   }
 
   return {
+    find: jest.fn(_find),
     insert: jest.fn(_insert),
     update: jest.fn(_update),
   };

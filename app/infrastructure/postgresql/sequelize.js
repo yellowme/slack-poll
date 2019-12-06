@@ -5,8 +5,13 @@ const sequelize = new Sequelize(config.DATABASE_URL, {
   dialect: 'postgres',
 });
 
-function createSequelizeDatabase() {
-  sequelize.import('./models/poll.js');
+async function createSequelizeDatabase() {
+  const PollModel = sequelize.import('./models/poll.js');
+  const PollAnswerModel = sequelize.import('./models/pollAnswer.js');
+
+  PollModel.hasMany(PollAnswerModel);
+
+  await sequelize.sync();
   return sequelize;
 }
 

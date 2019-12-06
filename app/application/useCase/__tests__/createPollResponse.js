@@ -29,7 +29,7 @@ test('creates a poll and adds a poll response', async () => {
 
   const createdPollAnswer = await createPollResponse(pollAnswer);
   expect(poll.options.includes(createdPollAnswer.option)).toBe(true);
-  expect(createdPollAnswer.poll).toBe(poll.id);
+  expect(createdPollAnswer.poll).toBe(createdPoll.id);
 });
 
 async function testSetup() {

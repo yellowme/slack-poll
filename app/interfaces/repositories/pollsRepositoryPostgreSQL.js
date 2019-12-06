@@ -1,6 +1,12 @@
 function createPollRepository(sequelize) {
   const { models } = sequelize;
 
+  async function find(options) {
+    const pollRecords = await models.poll.finAll({ where: options });
+    const polls = pollRecords.map(pollRecord => pollRecord.toJSON());
+    return polls;
+  }
+
   async function insert(data) {
     const pollRecord = await models.poll.create(data);
     const poll = pollRecord.toJSON();
@@ -14,6 +20,7 @@ function createPollRepository(sequelize) {
   }
 
   return {
+    find,
     insert,
     update,
   };

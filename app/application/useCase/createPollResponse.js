@@ -1,6 +1,6 @@
-function createCreatePollResponseUseCase(pollResponsesRepository) {
+function createCreatePollResponseUseCase(pollAnswersRepository) {
   return function createPollResponse(poll) {
-    return pollResponsesRepository.insert(poll);
+    return pollAnswersRepository.insert(poll);
   };
 }
 

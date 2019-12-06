@@ -1,18 +1,9 @@
 const faker = require('faker');
 
 const Poll = require('../../../domain/poll');
-
 const createTestDatabase = require('../../../../test/database');
 const createPollsRepository = require('../../../../test/repositories/pollsRepository');
-
 const createCreatePoll = require('../createPoll');
-
-async function setUpSuite() {
-  const sequelize = await createTestDatabase();
-  const pollsRepository = createPollsRepository(sequelize);
-
-  return { pollsRepository };
-}
 
 test('creates poll', async () => {
   const { pollsRepository } = await setUpSuite();
@@ -33,3 +24,10 @@ test('creates poll', async () => {
   expect(createdPoll.options).toEqual(poll.options);
   expect(createdPoll.mode).toBe(poll.mode);
 });
+
+async function setUpSuite() {
+  const sequelize = await createTestDatabase();
+  const pollsRepository = createPollsRepository(sequelize);
+
+  return { pollsRepository };
+}

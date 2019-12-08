@@ -1,7 +1,7 @@
 function createPollsPresenterSlack(slack) {
   async function send(message) {
-    const slackResponse = await slack.chatPostMessage(message);
-    return { timestamp: slackResponse.ts };
+    const response = await slack.chat.postMessage(message);
+    return { timestamp: response.ts };
   }
 
   return {

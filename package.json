@@ -26,6 +26,8 @@
     ]
   },
   "dependencies": {
+    "@slack/interactive-messages": "^1.4.0",
+    "@slack/web-api": "^5.6.0",
     "axios": "^0.19.0",
     "compression": "^1.7.4",
     "debug": "^4.1.1",

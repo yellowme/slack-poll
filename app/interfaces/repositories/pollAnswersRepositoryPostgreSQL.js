@@ -25,7 +25,7 @@ function createPollRepository(sequelize) {
 
     await models.pollAnswer.update(pollUpdate, { where: { id } });
     const record = await models.pollAnswer.findOne({ where: { id } });
-    return pollAnswerRecordInputSerializer(record);
+    return pollAnswerRecordOutupSerializer(record);
   }
 
   return {

@@ -7,17 +7,6 @@ const createPollsPresenter = require('../../../../test/presenters/pollsPresenter
 
 const createExpressServer = require('../server');
 
-// TODO: move to test folder
-async function setUpSuite() {
-  const sequelize = await createTestDatabase();
-  const pollsRepository = createPollsRepository(sequelize);
-  const pollsPresenter = createPollsPresenter();
-
-  const server = createExpressServer({ pollsRepository, pollsPresenter });
-
-  return { server, pollsRepository, pollsPresenter };
-}
-
 test('creates a poll with slack command', async () => {
   const { server, pollsPresenter, pollsRepository } = await setUpSuite();
 
@@ -51,3 +40,13 @@ test('creates a poll with slack command', async () => {
   expect(pollsRepositoryInsertCalls.question).toBe(expectedQuestion);
   expect(pollsRepositoryInsertCalls.options[0]).toBe(expectedOption);
 });
+
+async function setUpSuite() {
+  const sequelize = await createTestDatabase();
+  const pollsRepository = createPollsRepository(sequelize);
+  const pollsPresenter = createPollsPresenter();
+
+  const server = createExpressServer({ pollsRepository, pollsPresenter });
+
+  return { server, pollsRepository, pollsPresenter };
+}

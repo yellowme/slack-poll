@@ -80,10 +80,6 @@ test('replaces response if tries to add another response to same poll', async ()
   });
 
   createdPollAnswer = await createPollResponse(secondPollAnswer);
-  console.log({
-    options: poll.options,
-    createdPollAnswer: createdPollAnswer.option,
-  });
   expect(poll.options.includes(createdPollAnswer.option)).toBe(true);
   expect(createdPollAnswer.option).toBe(selectedPollAnswerValue);
   expect(createdPollAnswer.poll).toBe(createdPoll.id);
@@ -94,6 +90,64 @@ test('replaces response if tries to add another response to same poll', async ()
   });
 
   expect(allPollAnswers.length).toBe(1);
+});
+
+test('delete response if tries to add another response with de same option and same poll', async () => {
+  const {
+    createPoll,
+    createPollResponse,
+    pollAnswersRepository,
+  } = await testSetup();
+
+  const answerOwner = faker.random.uuid();
+
+  const poll = Poll({
+    options: [faker.lorem.word(), faker.lorem.word()],
+    owner: faker.random.uuid(),
+    question: faker.lorem.word(),
+  });
+
+  const createdPoll = await createPoll(poll);
+  expect(createdPoll.question).toBe(poll.question);
+
+  // Use the first option as the value of poll answer
+  let selectedPollAnswerValue = poll.options[0];
+  const firstPollAnswer = PollAnswer({
+    option: selectedPollAnswerValue,
+    owner: answerOwner,
+    poll: createdPoll.id,
+  });
+
+  let createdPollAnswer = await createPollResponse(firstPollAnswer);
+  expect(poll.options.includes(createdPollAnswer.option)).toBe(true);
+  expect(createdPollAnswer.option).toBe(selectedPollAnswerValue);
+  expect(createdPollAnswer.poll).toBe(createdPoll.id);
+
+  let allPollAnswers = await pollAnswersRepository.find({
+    owner: answerOwner,
+    poll: createdPoll.id,
+  });
+
+  expect(allPollAnswers.length).toBe(1);
+
+  // Keep the same option in selectedPollAnswerValue
+  const secondPollAnswer = PollAnswer({
+    option: selectedPollAnswerValue,
+    owner: answerOwner,
+    poll: createdPoll.id,
+  });
+
+  createdPollAnswer = await createPollResponse(secondPollAnswer);
+  expect(poll.options.includes(createdPollAnswer.option)).toBe(true);
+  expect(createdPollAnswer.option).toBe(selectedPollAnswerValue);
+  expect(createdPollAnswer.poll).toBe(createdPoll.id);
+
+  allPollAnswers = await pollAnswersRepository.find({
+    owner: answerOwner,
+    poll: createdPoll.id,
+  });
+
+  expect(allPollAnswers.length).toBe(0);
 });
 
 async function testSetup() {

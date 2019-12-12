@@ -7,6 +7,36 @@ const createPollAnswersRepository = require('../../../../test/repositories/pollA
 const createPollsPresenter = require('../../../../test/presenters/pollsPresenter');
 const createExpressServer = require('../server');
 
+test('rejects with invalid verification token', async () => {
+  const { server } = await setUpSuite();
+
+  const slackVerificationToken = faker.random.uuid();
+  const expectedOption = faker.lorem.word();
+  const userId = faker.random.uuid();
+  const pollId = faker.random.uuid();
+
+  const requestBody = {
+    payload: JSON.stringify({
+      token: slackVerificationToken,
+      user: {
+        id: userId,
+      },
+      callback_id: pollId,
+      actions: [
+        {
+          value: expectedOption,
+        },
+      ],
+    }),
+  };
+
+  const response = await request(server)
+    .post('/hook')
+    .send(requestBody);
+
+  expect(response.status).toBe(401);
+});
+
 test('add poll answer by calling slack interactive components', async () => {
   const { server, pollsRepository, pollAnswersRepository } = await setUpSuite();
 

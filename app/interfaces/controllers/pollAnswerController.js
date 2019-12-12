@@ -35,7 +35,8 @@ function createPostPollAnswer({
     const [action] = actions;
 
     // Validate verification token
-    if (config.SLACK_VERIFICATION_TOKEN !== token) throw new Error();
+    if (config.SLACK_VERIFICATION_TOKEN !== token)
+      return res.status(401).send();
 
     try {
       const currentPoll = await fetchPoll({ id: callback_id });
@@ -53,7 +54,6 @@ function createPostPollAnswer({
           pollsMessageSerializerSlack(currentPoll, { responses: pollResponses })
         );
     } catch (err) {
-      console.error(err);
       return res.status(500).json({
         text: "Sorry, there's been an error. Try again later.",
         replace_original: false,

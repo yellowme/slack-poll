@@ -7,6 +7,30 @@ const createPollsPresenter = require('../../../../test/presenters/pollsPresenter
 
 const createExpressServer = require('../server');
 
+test('rejects with invalid verification token', async () => {
+  const { server } = await setUpSuite();
+
+  const slackVerificationToken = faker.lorem.word();
+  const expectedQuestion = faker.lorem.word();
+  const expectedOption = faker.lorem.word();
+  const slashCommand = `"${expectedQuestion}" "${expectedOption}" "${expectedOption}"`;
+  const exctedUserId = faker.random.uuid();
+  const expectedSlackChannelId = faker.random.uuid();
+
+  const requestBody = {
+    text: slashCommand,
+    token: slackVerificationToken,
+    user_id: exctedUserId,
+    channel_id: expectedSlackChannelId,
+  };
+
+  const response = await request(server)
+    .post('/polls')
+    .send(requestBody);
+
+  expect(response.status).toBe(401);
+});
+
 test('creates a poll with slack command', async () => {
   const { server, pollsPresenter } = await setUpSuite();
 

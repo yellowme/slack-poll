@@ -33,7 +33,8 @@ function createPostPoll({
     const { text, token, channel_id, user_id } = req.body;
 
     // Validate verification token
-    if (config.SLACK_VERIFICATION_TOKEN !== token) throw new Error();
+    if (config.SLACK_VERIFICATION_TOKEN !== token)
+      return res.status(401).send();
 
     // Read poll from slack slash command
     const pollInput = pollsStringSerializer({ text, user_id });

@@ -17,7 +17,10 @@ function pollsStringSerializer({ text, user_id }) {
 function extractPollDataFromCommand(command) {
   // Slack inyects weird cuoutes when you use regular double cuoutes ("")
   const sanitizedCommand = removeDoubleCuotes(command);
-  const mode = sanitizedCommand.search('-m') >= 0 ? 'm' : 's';
+  const mode =
+    sanitizedCommand.search('-m') >= 0
+      ? Poll.PollMode.MULTIPLE
+      : Poll.PollMode.SINGLE;
 
   // Clean emptys and flags
   const rawOptions = sanitizedCommand

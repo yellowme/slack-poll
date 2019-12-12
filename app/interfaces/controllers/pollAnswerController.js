@@ -38,22 +38,20 @@ function createPostPollAnswer({
     if (config.SLACK_VERIFICATION_TOKEN !== token) throw new Error();
 
     try {
-      // TODO: Check of existing reponse
-      // TODO: if exist and same response delete it
-      // TODO: if exist and Single with diferent reponse update it
-      // TODO: if exist and Multiple with diferent reponse create it
-      // TODO: if delete
-      await createPollResponse({
-        poll: callback_id,
+      const currentPoll = await fetchPoll({ id: callback_id });
+
+      await createPollResponse(currentPoll, {
+        poll: currentPoll.id,
         option: action.value,
         owner: user.id,
       });
 
       const pollResponses = await fetchPollResponses({ id: callback_id });
-      const poll = await fetchPoll({ id: callback_id });
       return res
         .status(201)
-        .json(pollsMessageSerializerSlack(poll, { responses: pollResponses }));
+        .json(
+          pollsMessageSerializerSlack(currentPoll, { responses: pollResponses })
+        );
     } catch (err) {
       console.error(err);
       return res.status(500).json({

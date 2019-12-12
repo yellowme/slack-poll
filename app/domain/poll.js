@@ -1,4 +1,9 @@
-function createPoll({ id, options, owner, question, mode = 's' }) {
+const PollMode = {
+  SINGLE: 's',
+  MULTIPLE: 'm',
+};
+
+function createPoll({ id, options, owner, question, mode = PollMode.SINGLE }) {
   return {
     id,
     mode,
@@ -7,5 +12,7 @@ function createPoll({ id, options, owner, question, mode = 's' }) {
     question,
   };
 }
+
+createPoll.PollMode = PollMode;
 
 module.exports = createPoll;

@@ -28,7 +28,7 @@ test('adds a poll response to a given poll', async () => {
     poll: createdPoll.id,
   });
 
-  const createdPollAnswer = await createPollResponse(pollAnswer);
+  const createdPollAnswer = await createPollResponse(createdPoll, pollAnswer);
   expect(poll.options.includes(createdPollAnswer.option)).toBe(true);
   expect(createdPollAnswer.poll).toBe(createdPoll.id);
 });
@@ -59,7 +59,11 @@ test('replaces response if tries to add another response to same poll', async ()
     poll: createdPoll.id,
   });
 
-  let createdPollAnswer = await createPollResponse(firstPollAnswer);
+  let createdPollAnswer = await createPollResponse(
+    createdPoll,
+    firstPollAnswer
+  );
+
   expect(poll.options.includes(createdPollAnswer.option)).toBe(true);
   expect(createdPollAnswer.option).toBe(selectedPollAnswerValue);
   expect(createdPollAnswer.poll).toBe(createdPoll.id);
@@ -79,7 +83,7 @@ test('replaces response if tries to add another response to same poll', async ()
     poll: createdPoll.id,
   });
 
-  createdPollAnswer = await createPollResponse(secondPollAnswer);
+  createdPollAnswer = await createPollResponse(createdPoll, secondPollAnswer);
   expect(poll.options.includes(createdPollAnswer.option)).toBe(true);
   expect(createdPollAnswer.option).toBe(selectedPollAnswerValue);
   expect(createdPollAnswer.poll).toBe(createdPoll.id);
@@ -118,7 +122,11 @@ test('delete response if tries to add another response with de same option and s
     poll: createdPoll.id,
   });
 
-  let createdPollAnswer = await createPollResponse(firstPollAnswer);
+  let createdPollAnswer = await createPollResponse(
+    createdPoll,
+    firstPollAnswer
+  );
+
   expect(poll.options.includes(createdPollAnswer.option)).toBe(true);
   expect(createdPollAnswer.option).toBe(selectedPollAnswerValue);
   expect(createdPollAnswer.poll).toBe(createdPoll.id);
@@ -137,7 +145,7 @@ test('delete response if tries to add another response with de same option and s
     poll: createdPoll.id,
   });
 
-  createdPollAnswer = await createPollResponse(secondPollAnswer);
+  createdPollAnswer = await createPollResponse(createdPoll, secondPollAnswer);
   expect(poll.options.includes(createdPollAnswer.option)).toBe(true);
   expect(createdPollAnswer.option).toBe(selectedPollAnswerValue);
   expect(createdPollAnswer.poll).toBe(createdPoll.id);
@@ -148,6 +156,64 @@ test('delete response if tries to add another response with de same option and s
   });
 
   expect(allPollAnswers.length).toBe(0);
+});
+
+test('adds two poll responses to a given poll', async () => {
+  const {
+    createPoll,
+    createPollResponse,
+    pollAnswersRepository,
+  } = await testSetup();
+
+  const answerOwner = faker.random.uuid();
+
+  const poll = Poll({
+    options: [faker.lorem.word(), faker.lorem.word()],
+    owner: faker.random.uuid(),
+    question: faker.lorem.word(),
+    mode: Poll.PollMode.MULTIPLE,
+  });
+
+  const createdPoll = await createPoll(poll);
+  expect(createdPoll.question).toBe(poll.question);
+
+  let [
+    firstSelectedPollAnswerValue,
+    secondSelectedPollAnswerValue,
+  ] = poll.options;
+
+  const firstPollAnswer = PollAnswer({
+    option: firstSelectedPollAnswerValue,
+    owner: answerOwner,
+    poll: createdPoll.id,
+  });
+
+  const secondPollAnswer = PollAnswer({
+    option: secondSelectedPollAnswerValue,
+    owner: answerOwner,
+    poll: createdPoll.id,
+  });
+
+  const [firstCreatedPollAnswers, secondCreatedPollAnswers] = [
+    await createPollResponse(createdPoll, firstPollAnswer),
+    await createPollResponse(createdPoll, secondPollAnswer),
+  ];
+
+  expect(firstCreatedPollAnswers.option).toBe(firstSelectedPollAnswerValue);
+  expect(firstCreatedPollAnswers.owner).toBe(answerOwner);
+  expect(firstCreatedPollAnswers.poll).toBe(createdPoll.id);
+  expect(poll.options.includes(firstCreatedPollAnswers.option)).toBe(true);
+  expect(poll.options.includes(secondCreatedPollAnswers.option)).toBe(true);
+  expect(secondCreatedPollAnswers.option).toBe(secondSelectedPollAnswerValue);
+  expect(secondCreatedPollAnswers.owner).toBe(answerOwner);
+  expect(secondCreatedPollAnswers.poll).toBe(createdPoll.id);
+
+  const allPollAnswers = await pollAnswersRepository.find({
+    owner: answerOwner,
+    poll: createdPoll.id,
+  });
+
+  expect(allPollAnswers.length).toBe(2);
 });
 
 async function testSetup() {

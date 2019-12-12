@@ -17,6 +17,7 @@ function createPollsController({ pollsRepository, pollsPresenter }) {
     storePollPresenterTimestamp,
     pollsPresenter,
   });
+
   return { postPoll };
 }
 

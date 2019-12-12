@@ -1,4 +1,5 @@
 const express = require('express');
+const { createServer } = require('http');
 const morgan = require('morgan');
 const compression = require('compression');
 const helmet = require('helmet');
@@ -21,8 +22,7 @@ function createExpressServer({
 }) {
   const app = express();
 
-  // TODO: Add helmet
-  // TODO: Add rate limit
+  // Middleware stack
   app.use(helmet());
   app.use(compression());
   app.use(limiter);
@@ -35,9 +35,9 @@ function createExpressServer({
   // Attatch route handlers
   app.use(createStatusHandler());
   app.use(createPollsHandler({ pollsRepository, pollsPresenter }));
-  app.use(createPollAnswerHandler({ pollAnswersRepository }));
+  app.use(createPollAnswerHandler({ pollsRepository, pollAnswersRepository }));
 
-  return app;
+  return createServer(app);
 }
 
 module.exports = createExpressServer;

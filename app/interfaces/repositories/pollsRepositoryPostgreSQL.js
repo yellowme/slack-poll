@@ -1,22 +1,21 @@
 function createPollRepository(sequelize) {
   const { models } = sequelize;
 
-  async function find(options) {
-    const pollRecords = await models.poll.finAll({ where: options });
-    const polls = pollRecords.map(pollRecord => pollRecord.toJSON());
+  async function find(pollData = {}) {
+    const pollRecords = await models.poll.findAll({ where: pollData });
+    const polls = pollRecords.map(pollRecordOutupSerializer);
     return polls;
   }
 
-  async function insert(data) {
-    const pollRecord = await models.poll.create(data);
-    const poll = pollRecord.toJSON();
-    return poll;
+  async function insert(pollData) {
+    const pollRecord = await models.poll.create(pollData);
+    return pollRecordOutupSerializer(pollRecord);
   }
 
-  async function update(id, data) {
-    await models.poll.update(data, { where: { id } });
+  async function update({ id, ...pollData }) {
+    await models.poll.update(pollData, { where: { id } });
     const record = await models.poll.findOne({ where: { id } });
-    return record.toJSON();
+    return pollRecordOutupSerializer(record);
   }
 
   return {
@@ -24,6 +23,11 @@ function createPollRepository(sequelize) {
     insert,
     update,
   };
+}
+
+function pollRecordOutupSerializer(pollRecord) {
+  const plainPollRecord = pollRecord.toJSON();
+  return plainPollRecord;
 }
 
 module.exports = createPollRepository;

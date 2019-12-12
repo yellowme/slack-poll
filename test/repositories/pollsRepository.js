@@ -1,39 +1,28 @@
 function createPollRepository(sequelize) {
   const { models } = sequelize;
 
-  async function _find(options) {
-    return (
-      await models.poll.findAll({
-        where: options,
-      })
-    ).map(record => record.toJSON());
-  }
-
-  async function _insert({ options = [], ...data }) {
-    // SQL does not support array, so it's converted to string
-    const record = await models.poll.create({
-      ...data,
-      options: options.join(','),
+  async function _find(pollData = {}) {
+    const pollRecords = await models.poll.findAll({
+      where: pollRecordInputSerializer(pollData),
     });
 
-    const plainRecord = record.toJSON();
-
-    // And converted back to array
-    return {
-      ...plainRecord,
-      options: plainRecord.options.split(','),
-    };
+    const polls = pollRecords.map(pollRecordOutupSerializer);
+    return polls;
   }
 
-  async function _update(id, { options, ...data }) {
-    if (options) {
-      options = options.join(',');
-      data.options = options;
-    }
+  async function _insert(pollData) {
+    const record = await models.poll.create(
+      pollRecordInputSerializer(pollData)
+    );
 
-    await models.poll.update(data, { where: { id } });
+    return pollRecordOutupSerializer(record);
+  }
+
+  async function _update(pollData) {
+    const { id, ...pollUpdate } = pollRecordInputSerializer(pollData);
+    await models.poll.update(pollUpdate, { where: { id } });
     const record = await models.poll.findOne({ where: { id } });
-    return record.toJSON();
+    return pollRecordOutupSerializer(record);
   }
 
   return {
@@ -41,6 +30,20 @@ function createPollRepository(sequelize) {
     insert: jest.fn(_insert),
     update: jest.fn(_update),
   };
+}
+
+function pollRecordOutupSerializer(pollRecord) {
+  const plainPollRecord = pollRecord.toJSON();
+  if (plainPollRecord.options)
+    plainPollRecord.options = plainPollRecord.options.split(',');
+  return plainPollRecord;
+}
+
+function pollRecordInputSerializer({ options, ...poll }) {
+  const plainPollRecord = poll;
+  // SQL does not support array, so it's converted to string
+  if (options) plainPollRecord.options = options.join(',');
+  return plainPollRecord;
 }
 
 module.exports = createPollRepository;

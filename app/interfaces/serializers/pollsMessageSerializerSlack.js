@@ -13,6 +13,7 @@ const iconEmojis = config.SLACK_MESSAGE_ICON_EMOJIS.split(',').map(
 function pollsMessageSerializerSlack(
   poll,
   {
+    responses,
     channel,
     timestamp,
     username = config.SLACK_APP_DISPLAY_NAME,
@@ -20,7 +21,10 @@ function pollsMessageSerializerSlack(
     icon_emoji = utils.arraySample(iconEmojis),
   }
 ) {
-  const pollOptionsString = poll.options.reduce(decoratePollOptions(poll), '');
+  const pollOptionsString = poll.options.reduce(
+    decoratePollOptions(poll, responses),
+    ''
+  );
 
   return {
     channel,
@@ -109,25 +113,25 @@ function createAttachment({
   };
 }
 
-function decoratePollOptions(poll) {
-  return (text, option, index) => {
-    if (!poll.answers) return `${text}:${emojis[index]}: ${option} \n\n`;
+function decoratePollOptions(poll, responses) {
+  const groupedResponses = utils.groupBy(responses, 'option');
 
-    // TODO: Refactor and implement
-    const answerValue = `${option}-${index}`;
-    const allUserAnswers = poll.answers.filter(
-      cpa => cpa.answer === answerValue
-    );
+  return (base, option, index) => {
+    const optionWithEmoji = `${emojis[index]}: ${option}`;
+    if (!responses) return `${base}:${optionWithEmoji} \n\n`;
 
-    const usernamesString = allUserAnswers.reduce(
-      (baseText, user) => `${baseText} <@${user.userId}>`,
+    // Option ID is generate by option value and index
+    const pollResponses = groupedResponses[`${option}-${index}`] || [];
+
+    // Collect Times the answer was selected
+    // And Users who select those answers
+    const count = '`' + pollResponses.length + '`';
+    const owners = pollResponses.reduce(
+      (acc, resp) => `${acc} <@${resp.owner}>`,
       ''
     );
 
-    const counterString =
-      allUserAnswers.length !== 0 ? `: \`${allUserAnswers.length}\`` : '';
-
-    return `${text}:${emojis[index]}: ${option}${counterString} ${usernamesString} \n\n `;
+    return `${base}:${optionWithEmoji}: ${count} ${owners} \n\n `;
   };
 }
 

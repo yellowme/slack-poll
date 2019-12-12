@@ -1,7 +1,7 @@
-function createCreatePollResponseUseCase(pollAnswersRepository) {
+function createCreatePollResponse(pollAnswersRepository) {
   return function createPollResponse(poll) {
     return pollAnswersRepository.insert(poll);
   };
 }
 
-module.exports = createCreatePollResponseUseCase;
+module.exports = createCreatePollResponse;

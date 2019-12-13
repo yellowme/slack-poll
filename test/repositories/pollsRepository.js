@@ -25,10 +25,25 @@ function createPollRepository(sequelize) {
     return pollRecordOutupSerializer(record);
   }
 
+  async function _destroy(poll) {
+    const plainPoll = pollRecordInputSerializer(poll);
+
+    const record = await models.poll.findOne({
+      where: plainPoll,
+    });
+
+    await models.poll.destroy({
+      where: plainPoll,
+    });
+
+    return pollRecordOutupSerializer(record);
+  }
+
   return {
     find: jest.fn(_find),
     insert: jest.fn(_insert),
     update: jest.fn(_update),
+    destroy: jest.fn(_destroy),
   };
 }
 

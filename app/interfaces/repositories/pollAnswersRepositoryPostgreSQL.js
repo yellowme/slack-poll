@@ -28,10 +28,27 @@ function createPollRepository(sequelize) {
     return pollAnswerRecordOutupSerializer(record);
   }
 
+  async function destroy(pollAnswerData) {
+    const plainPollAnswerRecord = pollAnswerRecordInputSerializer(
+      pollAnswerData
+    );
+
+    const record = await models.pollAnswer.findOne({
+      where: plainPollAnswerRecord,
+    });
+
+    await models.pollAnswer.destroy({
+      where: plainPollAnswerRecord,
+    });
+
+    return pollAnswerRecordOutupSerializer(record);
+  }
+
   return {
     find,
     insert,
     update,
+    destroy,
   };
 }
 

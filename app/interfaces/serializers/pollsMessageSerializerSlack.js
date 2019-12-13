@@ -22,7 +22,7 @@ function pollsMessageSerializerSlack(
   }
 ) {
   const pollOptionsString = poll.options.reduce(
-    decoratePollOptions(poll, responses),
+    decoratePollOptions(responses),
     ''
   );
 
@@ -58,6 +58,7 @@ function pollsMessageSerializerSlack(
         })
       ),
       createAttachment({
+        callback_id: poll.id,
         actions: [
           createAttachmentAction({
             name: 'cancel',
@@ -113,7 +114,7 @@ function createAttachment({
   };
 }
 
-function decoratePollOptions(poll, responses) {
+function decoratePollOptions(responses) {
   const groupedResponses = utils.groupBy(responses, 'option');
 
   return (base, option, index) => {

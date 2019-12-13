@@ -92,6 +92,52 @@ test('add poll answer by calling slack interactive components', async () => {
   expect(lastPollAnswer.poll).toBe(lastCreatedPoll.id);
 });
 
+test('deletes a poll', async () => {
+  const { server, pollsRepository } = await setUpSuite();
+
+  const slackVerificationToken = 'slack_verification_token';
+  const expectedQuestion = faker.lorem.word();
+  const expectedOption = faker.lorem.word();
+  const slashCommand = `"${expectedQuestion}" "${expectedOption}" "${expectedOption}"`;
+  const exctedUserId = faker.random.uuid();
+  const expectedSlackChannelId = faker.random.uuid();
+
+  await request(server)
+    .post('/polls')
+    .send({
+      text: slashCommand,
+      token: slackVerificationToken,
+      user_id: exctedUserId,
+      channel_id: expectedSlackChannelId,
+    });
+
+  const [lastCreatedPoll] = await pollsRepository.find();
+
+  const requestBody = {
+    payload: JSON.stringify({
+      token: slackVerificationToken,
+      user: {
+        id: exctedUserId,
+      },
+      callback_id: lastCreatedPoll.id,
+      actions: [
+        {
+          value: 'cancel-null',
+        },
+      ],
+    }),
+  };
+
+  const response = await request(server)
+    .post('/hook')
+    .send(requestBody);
+
+  expect(response.status).toBe(200);
+
+  const poll = await pollsRepository.find();
+  expect(poll.length).toBe(0);
+});
+
 async function setUpSuite() {
   const sequelize = await createTestDatabase();
   const pollsRepository = createPollsRepository(sequelize);

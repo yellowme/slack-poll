@@ -1,14 +1,10 @@
 const request = require('supertest');
 const faker = require('faker');
 
-const createTestDatabase = require('../../../../test/database');
-const createPollsRepository = require('../../../../test/repositories/pollsRepository');
-const createPollsPresenter = require('../../../../test/presenters/pollsPresenter');
-
-const createExpressServer = require('../server');
+const createTestApplication = require('../../../../test/application');
 
 test('rejects with invalid verification token', async () => {
-  const { server } = await setUpSuite();
+  const { server } = await createTestApplication();
 
   const slackVerificationToken = faker.lorem.word();
   const expectedQuestion = faker.lorem.word();
@@ -32,7 +28,7 @@ test('rejects with invalid verification token', async () => {
 });
 
 test('creates a poll with slack command', async () => {
-  const { server, pollsPresenter } = await setUpSuite();
+  const { server, presenters } = await createTestApplication();
 
   const slackVerificationToken = 'slack_verification_token';
   const expectedQuestion = faker.lorem.word();
@@ -54,7 +50,7 @@ test('creates a poll with slack command', async () => {
 
   expect(response.status).toBe(201);
 
-  const pollsPresenterCalls = pollsPresenter.send.mock.calls[0][0];
+  const pollsPresenterCalls = presenters.pollsPresenter.send.mock.calls[0][0];
   expect(pollsPresenterCalls.attachments[0].title).toBe(expectedQuestion);
   expect(pollsPresenterCalls.attachments[0].footer).toContain('Mode: Single');
   expect(pollsPresenterCalls.attachments[1].text).toBe(
@@ -63,7 +59,7 @@ test('creates a poll with slack command', async () => {
 });
 
 test('creates a multioption poll with slack command', async () => {
-  const { server, pollsPresenter } = await setUpSuite();
+  const { server, presenters } = await createTestApplication();
 
   const slackVerificationToken = 'slack_verification_token';
   const expectedQuestion = faker.lorem.word();
@@ -85,20 +81,10 @@ test('creates a multioption poll with slack command', async () => {
 
   expect(response.status).toBe(201);
 
-  const pollsPresenterCalls = pollsPresenter.send.mock.calls[0][0];
+  const pollsPresenterCalls = presenters.pollsPresenter.send.mock.calls[0][0];
   expect(pollsPresenterCalls.attachments[0].title).toBe(expectedQuestion);
   expect(pollsPresenterCalls.attachments[0].footer).toContain('Mode: Multiple');
   expect(pollsPresenterCalls.attachments[1].text).toBe(
     `:zero: ${expectedOption} \n\n:one: ${expectedOption} \n\n`
   );
 });
-
-async function setUpSuite() {
-  const sequelize = await createTestDatabase();
-  const pollsRepository = createPollsRepository(sequelize);
-  const pollsPresenter = createPollsPresenter();
-
-  const server = createExpressServer({ pollsRepository, pollsPresenter });
-
-  return { server, pollsRepository, pollsPresenter };
-}

@@ -5,21 +5,17 @@ const compression = require('compression');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
-const createStatusHandler = require('./status');
-const createPollsHandler = require('./polls');
-const createPollAnswerHandler = require('./hook');
+const createInterfacesMiddleware = require('./middlewares/interfaces');
+const createStatusHandler = require('./routes/status');
+const createPollsHandler = require('./routes/polls');
+const createPollAnswerHandler = require('./routes/hook');
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
 });
 
-// Build express application and return express instance
-function createExpressServer({
-  pollsRepository,
-  pollAnswersRepository,
-  pollsPresenter,
-}) {
+function createExpressServer({ repositories, presenters }) {
   const app = express();
 
   // Middleware stack
@@ -28,14 +24,15 @@ function createExpressServer({
   app.use(limiter);
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
+  app.use(createInterfacesMiddleware({ repositories, presenters }));
   app.use(
     morgan(':method :url :status :res[content-length] - :response-time ms')
   );
 
   // Attatch route handlers
   app.use(createStatusHandler());
-  app.use(createPollsHandler({ pollsRepository, pollsPresenter }));
-  app.use(createPollAnswerHandler({ pollsRepository, pollAnswersRepository }));
+  app.use(createPollsHandler());
+  app.use(createPollAnswerHandler());
 
   return createServer(app);
 }

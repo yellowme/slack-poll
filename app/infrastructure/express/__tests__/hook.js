@@ -1,14 +1,10 @@
 const request = require('supertest');
 const faker = require('faker');
 
-const createTestDatabase = require('../../../../test/database');
-const createPollsRepository = require('../../../../test/repositories/pollsRepository');
-const createPollAnswersRepository = require('../../../../test/repositories/pollAnswersRepository');
-const createPollsPresenter = require('../../../../test/presenters/pollsPresenter');
-const createExpressServer = require('../server');
+const createTestApplication = require('../../../../test/application');
 
 test('rejects with invalid verification token', async () => {
-  const { server } = await setUpSuite();
+  const { server } = await createTestApplication();
 
   const slackVerificationToken = faker.random.uuid();
   const expectedOption = faker.lorem.word();
@@ -38,7 +34,7 @@ test('rejects with invalid verification token', async () => {
 });
 
 test('add poll answer by calling slack interactive components', async () => {
-  const { server, pollsRepository, pollAnswersRepository } = await setUpSuite();
+  const { server, repositories } = await createTestApplication();
 
   const slackVerificationToken = 'slack_verification_token';
   const expectedQuestion = faker.lorem.word();
@@ -56,7 +52,7 @@ test('add poll answer by calling slack interactive components', async () => {
       channel_id: expectedSlackChannelId,
     });
 
-  const [lastCreatedPoll] = await pollsRepository.find();
+  const [lastCreatedPoll] = await repositories.pollsRepository.find();
 
   const requestBody = {
     payload: JSON.stringify({
@@ -79,7 +75,7 @@ test('add poll answer by calling slack interactive components', async () => {
 
   expect(response.status).toBe(201);
 
-  const pollAnswers = await pollAnswersRepository.find({
+  const pollAnswers = await repositories.pollAnswersRepository.find({
     option: expectedOption,
     owner: exctedUserId,
   });
@@ -93,7 +89,7 @@ test('add poll answer by calling slack interactive components', async () => {
 });
 
 test('deletes a poll', async () => {
-  const { server, pollsRepository } = await setUpSuite();
+  const { server, repositories } = await createTestApplication();
 
   const slackVerificationToken = 'slack_verification_token';
   const expectedQuestion = faker.lorem.word();
@@ -111,7 +107,7 @@ test('deletes a poll', async () => {
       channel_id: expectedSlackChannelId,
     });
 
-  const [lastCreatedPoll] = await pollsRepository.find();
+  const [lastCreatedPoll] = await repositories.pollsRepository.find();
 
   const requestBody = {
     payload: JSON.stringify({
@@ -134,21 +130,6 @@ test('deletes a poll', async () => {
 
   expect(response.status).toBe(200);
 
-  const poll = await pollsRepository.find();
+  const poll = await repositories.pollsRepository.find();
   expect(poll.length).toBe(0);
 });
-
-async function setUpSuite() {
-  const sequelize = await createTestDatabase();
-  const pollsRepository = createPollsRepository(sequelize);
-  const pollAnswersRepository = createPollAnswersRepository(sequelize);
-  const pollsPresenter = createPollsPresenter();
-
-  const server = createExpressServer({
-    pollsRepository,
-    pollAnswersRepository,
-    pollsPresenter,
-  });
-
-  return { server, pollsRepository, pollAnswersRepository };
-}

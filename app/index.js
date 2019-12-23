@@ -1,6 +1,6 @@
 const config = require('./config');
 const slackWebApi = require('./infrastructure/slack-web-api');
-const createPostgreSQLDatabase = require('./infrastructure/postgresql/sequelize');
+const createPostgreSQLDatabase = require('./infrastructure/sequelize/sequelize');
 const createExpressServer = require('./infrastructure/express/server');
 const createPollsRepository = require('./interfaces/repositories/pollsRepositoryPostgreSQL');
 const createPollAnswersRepository = require('./interfaces/repositories/pollAnswersRepositoryPostgreSQL');
@@ -17,9 +17,13 @@ module.exports = async function createApplication() {
 
   // Create Webserver
   const server = createExpressServer({
-    pollsRepository,
-    pollAnswersRepository,
-    pollsPresenter,
+    repositories: {
+      pollsRepository,
+      pollAnswersRepository,
+    },
+    presenters: {
+      pollsPresenter,
+    },
   });
 
   return {

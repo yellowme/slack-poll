@@ -3,5 +3,5 @@
     "node": true,
     "jest": true
   },
-  "extends": ["react-app", "plugin:prettier/recommended"]
+  "extends": ["airbnb-base", "plugin:prettier/recommended"]
 }

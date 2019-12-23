@@ -47,10 +47,8 @@ function createPostPoll({
         })
       );
 
-      await storePollPresenterTimestamp(
-        createdPoll.id,
-        presenterResponse.timestamp
-      );
+      createdPoll.timestamp = presenterResponse.timestamp;
+      await storePollPresenterTimestamp(createdPoll);
     } catch (err) {
       return res.status(500).send(err);
     }

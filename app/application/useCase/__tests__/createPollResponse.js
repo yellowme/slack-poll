@@ -182,17 +182,18 @@ test('adds two poll responses to a given poll', async () => {
     secondSelectedPollAnswerValue,
   ] = poll.options;
 
-  const firstPollAnswer = PollAnswer({
-    option: firstSelectedPollAnswerValue,
-    owner: answerOwner,
-    poll: createdPoll.id,
-  });
-
-  const secondPollAnswer = PollAnswer({
-    option: secondSelectedPollAnswerValue,
-    owner: answerOwner,
-    poll: createdPoll.id,
-  });
+  const [firstPollAnswer, secondPollAnswer] = [
+    PollAnswer({
+      option: firstSelectedPollAnswerValue,
+      owner: answerOwner,
+      poll: createdPoll.id,
+    }),
+    PollAnswer({
+      option: secondSelectedPollAnswerValue,
+      owner: answerOwner,
+      poll: createdPoll.id,
+    }),
+  ];
 
   const [firstCreatedPollAnswers, secondCreatedPollAnswers] = [
     await createPollResponse(createdPoll, firstPollAnswer),

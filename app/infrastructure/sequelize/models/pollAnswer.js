@@ -1,5 +1,5 @@
 function createPollAnswerModel(sequelize, DataTypes) {
-  return sequelize.define('pollAnswer', {
+  return sequelize.define('poll_answer', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -7,7 +7,7 @@ function createPollAnswerModel(sequelize, DataTypes) {
       primaryKey: true,
     },
     option: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     owner: {

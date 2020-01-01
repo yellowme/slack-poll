@@ -2,7 +2,7 @@ const Poll = require('../../../core/entities/poll');
 
 function removeDoubleCuotes(string) {
   // u201D is “ and u201C is ”
-  return string.replace('/\u201D/g', '"').replace('/\u201C/g', '"');
+  return string.replace(/\u201D/g, '"').replace(/\u201C/g, '"');
 }
 
 function extractPollDataFromCommand(command) {

@@ -7,11 +7,11 @@ function createPollModel(sequelize, DataTypes) {
       primaryKey: true,
     },
     question: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     options: {
-      type: DataTypes.ARRAY(DataTypes.STRING),
+      type: DataTypes.ARRAY(DataTypes.TEXT),
       allowNull: false,
     },
     owner: {

@@ -7,7 +7,7 @@ function createPollAnswerModel(sequelize, DataTypes) {
       primaryKey: true,
     },
     option: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: false,
     },
     owner: {

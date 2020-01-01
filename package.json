@@ -8,7 +8,7 @@
     "prestart": "npm run migrate",
     "dev": "nodemon index.js",
     "test": "jest --config jest.json",
-    "migrate": "if [ $DATABASE_URL ]; then sequelize db:migrate --url $DATABASE_URL ; else echo; fi",
+    "migrate": "if [ $DATABASE_URL ]; then sequelize db:migrate --url $DATABASE_URL --migrations-path app/infrastructure/sequelize/migrations ; else echo; fi",
     "lint": "eslint app/**/*.js --fix",
     "format": "prettier app/**/*.js --write"
   },

@@ -11,10 +11,10 @@ function pollAnswerRecordInputSerializer({ poll, ...pollAnswer }) {
 }
 
 function createPollRepository(sequelize) {
-  const { models } = sequelize;
+  const PollAnswer = sequelize.models.poll_answer;
 
   async function find(pollAnswerData = {}) {
-    const pollAnswerRecords = await models.pollAnswer.findAll({
+    const pollAnswerRecords = await PollAnswer.findAll({
       where: pollAnswerRecordInputSerializer(pollAnswerData),
     });
 
@@ -23,7 +23,7 @@ function createPollRepository(sequelize) {
   }
 
   async function insert(pollData) {
-    const pollAnswerRecord = await models.pollAnswer.create(
+    const pollAnswerRecord = await PollAnswer.create(
       pollAnswerRecordInputSerializer(pollData)
     );
 
@@ -35,22 +35,18 @@ function createPollRepository(sequelize) {
       pollAnswerData
     );
 
-    await models.pollAnswer.update(pollUpdate, { where: { id } });
-    const record = await models.pollAnswer.findOne({ where: { id } });
+    await PollAnswer.update(pollUpdate, { where: { id } });
+    const record = await PollAnswer.findOne({ where: { id } });
     return pollAnswerRecordOutupSerializer(record);
   }
 
-  async function destroy(pollAnswerData) {
-    const plainPollAnswerRecord = pollAnswerRecordInputSerializer(
-      pollAnswerData
-    );
-
-    const record = await models.pollAnswer.findOne({
-      where: plainPollAnswerRecord,
+  async function destroy({ id }) {
+    const record = await PollAnswer.findOne({
+      where: { id },
     });
 
-    await models.pollAnswer.destroy({
-      where: plainPollAnswerRecord,
+    await PollAnswer.destroy({
+      where: { id },
     });
 
     return pollAnswerRecordOutupSerializer(record);

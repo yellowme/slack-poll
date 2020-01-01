@@ -1,4 +1,4 @@
-const errorResponses = require('../helpers/errorResponses');
+const PollOwnerException = require('../../../core/errors/PollOwnerException');
 const pollsMessageSerializerSlack = require('../serializers/pollsMessageSerializerSlack');
 
 const PollAnswerController = {
@@ -10,6 +10,7 @@ const PollAnswerController = {
 
     try {
       const currentPoll = await fetchPoll({ id: callback_id });
+
       await createPollResponse(currentPoll, {
         poll: currentPoll.id,
         option: action.value,
@@ -17,13 +18,15 @@ const PollAnswerController = {
       });
 
       const pollResponses = await fetchPollResponses({ id: callback_id });
+
       return res
         .status(201)
         .json(
           pollsMessageSerializerSlack(currentPoll, { responses: pollResponses })
         );
     } catch (err) {
-      return errorResponses.badImplementation(res, {
+      return res.status(200).json({
+        response_type: 'ephemeral',
         text: "Sorry, there's been an error. Try again later.",
         replace_original: false,
       });
@@ -33,19 +36,25 @@ const PollAnswerController = {
   async delete(req, res) {
     const { deletePoll } = req.useCases;
     // eslint-disable-next-line camelcase
-    const { callback_id } = JSON.parse(req.body.payload);
+    const { callback_id, user } = JSON.parse(req.body.payload);
 
     try {
-      await deletePoll({ id: callback_id });
+      await deletePoll({ id: callback_id, owner: user.id });
       return res.status(200).json({
-        text: 'Poll Deleted',
-        replace_original: true,
+        delete_original: true,
       });
     } catch (err) {
-      return errorResponses.badImplementation(res, {
+      const responseJson = {
+        response_type: 'ephemeral',
         text: "Sorry, there's been an error. Try again later.",
         replace_original: false,
-      });
+      };
+
+      if (err instanceof PollOwnerException) {
+        responseJson.text = err.message;
+      }
+
+      return res.status(200).json(responseJson);
     }
   },
 };

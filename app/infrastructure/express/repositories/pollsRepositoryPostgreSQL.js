@@ -4,32 +4,32 @@ function pollRecordOutupSerializer(pollRecord) {
 }
 
 function createPollRepository(sequelize) {
-  const { models } = sequelize;
+  const Poll = sequelize.models.poll;
 
   async function find(pollData = {}) {
-    const pollRecords = await models.poll.findAll({ where: pollData });
+    const pollRecords = await Poll.findAll({ where: pollData });
     const polls = pollRecords.map(pollRecordOutupSerializer);
     return polls;
   }
 
   async function insert(pollData) {
-    const pollRecord = await models.poll.create(pollData);
+    const pollRecord = await Poll.create(pollData);
     return pollRecordOutupSerializer(pollRecord);
   }
 
   async function update({ id, ...pollData }) {
-    await models.poll.update(pollData, { where: { id } });
-    const record = await models.poll.findOne({ where: { id } });
+    await Poll.update(pollData, { where: { id } });
+    const record = await Poll.findOne({ where: { id } });
     return pollRecordOutupSerializer(record);
   }
 
-  async function destroy(poll) {
-    const record = await models.poll.findOne({
-      where: poll,
+  async function destroy({ id }) {
+    const record = await Poll.findOne({
+      where: { id },
     });
 
-    await models.pollAnswer.destroy({
-      where: poll,
+    await Poll.destroy({
+      where: { id },
     });
 
     return pollRecordOutupSerializer(record);

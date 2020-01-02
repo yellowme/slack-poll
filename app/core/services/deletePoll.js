@@ -1,9 +1,11 @@
-const PollOwnerException = require('../errors/PollOwnerException');
+const NotPollOwnerError = require('../errors/NotPollOwnerError');
+const InvalidPollError = require('../errors/InvalidPollError');
 
 function createDeletePoll(pollRepository) {
   return async function deletePoll(poll) {
     const [pollToDelete] = await pollRepository.find({ id: poll.id });
-    if (pollToDelete.owner !== poll.owner) throw new PollOwnerException();
+    if (!pollToDelete) throw new InvalidPollError();
+    if (pollToDelete.owner !== poll.owner) throw new NotPollOwnerError();
     return pollRepository.destroy(poll);
   };
 }

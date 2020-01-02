@@ -1,4 +1,5 @@
 const Poll = require('../entities/poll');
+const InvalidPollOptionError = require('../errors/InvalidPollOptionError');
 
 function createCreatePollResponse(pollAnswersRepository) {
   return async function createPollResponse(poll, pollAnswer) {
@@ -6,6 +7,9 @@ function createCreatePollResponse(pollAnswersRepository) {
       owner: pollAnswer.owner,
       poll: pollAnswer.poll,
     };
+
+    if (!poll.options.includes(pollAnswer.option))
+      throw new InvalidPollOptionError(pollAnswer.option);
 
     const existingPollAnswersForUser = await pollAnswersRepository.find(
       pollAnswerBaseParams

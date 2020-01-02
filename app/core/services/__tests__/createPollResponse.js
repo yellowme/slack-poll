@@ -7,6 +7,7 @@ const createPollsRepository = require('../../../../test/repositories/pollsReposi
 const createPollAnswersRepository = require('../../../../test/repositories/pollAnswersRepository');
 const createCreatePollUseCase = require('../createPoll');
 const createCreatePollResponseUseCase = require('../createPollResponse');
+const InvalidPollOptionError = require('../../errors/InvalidPollOptionError');
 
 async function setupTest() {
   const sequelize = await createTestDatabase();
@@ -192,4 +193,26 @@ test('adds two poll responses to a given poll', async () => {
   });
 
   expect(allPollAnswers.length).toBe(2);
+});
+
+test('fails to create poll answer with invalid poll option', async () => {
+  const { createPoll, createPollResponse } = await setupTest();
+
+  // Given
+  const poll = Poll();
+  const createdPoll = await createPoll(poll);
+
+  const pollAnswer = PollAnswer({
+    option: faker.lorem.word(),
+    poll: createdPoll.id,
+  });
+
+  // When
+  try {
+    await createPollResponse(createdPoll, pollAnswer);
+  } catch (error) {
+    // Then
+    expect(error).toBeInstanceOf(InvalidPollOptionError);
+    expect(error.message).toBe(`${pollAnswer.option} is not a valid option.`);
+  }
 });

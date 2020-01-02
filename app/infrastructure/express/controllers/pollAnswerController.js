@@ -1,4 +1,4 @@
-const PollOwnerException = require('../../../core/errors/PollOwnerException');
+const NotPollOwnerError = require('../../../core/errors/NotPollOwnerError');
 const pollsMessageSerializerSlack = require('../serializers/pollsMessageSerializerSlack');
 
 const PollAnswerController = {
@@ -50,7 +50,7 @@ const PollAnswerController = {
         replace_original: false,
       };
 
-      if (err instanceof PollOwnerException) {
+      if (err instanceof NotPollOwnerError) {
         responseJson.text = err.message;
       }
 

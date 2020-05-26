@@ -1,17 +1,17 @@
-const dotenv = require("dotenv");
+const dotenv = require('dotenv');
 
 dotenv.config({ silent: true });
 
 const {
   PORT = 3000,
-  SLACK_BASE_URL = "https://slack.com/api",
+  SLACK_BASE_URL = 'https://slack.com/api',
   DATABASE_URL,
   SLACK_VERIFICATION_TOKEN,
   SLACK_ACCESS_TOKEN,
   NODE_ENV,
-  SLACK_APP_DISPLAY_NAME = "Yellow Poll",
-  SLACK_MESSAGE_BAR_COLOR = "#ffd100",
-  SLACK_MESSAGE_ICON_EMOJIS = "bar_chart",
+  SLACK_APP_DISPLAY_NAME = 'Yellow Poll',
+  SLACK_MESSAGE_BAR_COLOR = '#ffd100',
+  SLACK_MESSAGE_ICON_EMOJIS = 'bar_chart',
 } = process.env;
 
 const defaults = {

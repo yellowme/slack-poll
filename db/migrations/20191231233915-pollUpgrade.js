@@ -3,28 +3,28 @@ module.exports = {
     const memo = {};
     const { sequelize } = queryInterface;
 
-    const [, pollRecords] = await sequelize.query("select * from polls");
+    const [, pollRecords] = await sequelize.query('select * from polls');
     const [, pollAnswerRecords] = await sequelize.query(
-      "select * from poll_answers"
+      'select * from poll_answers'
     );
 
     const polls = pollRecords.rows.map((row) => {
       // eslint-disable-next-line prefer-const
-      let [question = "", ...options] = row.text
+      let [question = '', ...options] = row.text
         .replace(/\u201D/g, '"')
         .replace(/\u201C/g, '"')
         .split('" "');
 
-      let lastOption = options.pop() || "";
+      let lastOption = options.pop() || '';
 
-      question = question.replace(/"/g, "");
-      lastOption = lastOption.replace(/"/g, "");
+      question = question.replace(/"/g, '');
+      lastOption = lastOption.replace(/"/g, '');
       options.push(lastOption);
 
       const poll = {
         question,
         options,
-        owner: row.owner || "",
+        owner: row.owner || '',
         timestamp: row.titleTs,
         mode: row.mode,
         createdAt: row.createdAt,
@@ -49,11 +49,11 @@ module.exports = {
 
     return queryInterface.sequelize.transaction(async (transaction) => {
       try {
-        await queryInterface.dropTable("poll_answers", { transaction });
-        await queryInterface.dropTable("polls", { transaction });
+        await queryInterface.dropTable('poll_answers', { transaction });
+        await queryInterface.dropTable('polls', { transaction });
 
         await queryInterface.createTable(
-          "polls",
+          'polls',
           {
             id: {
               type: Sequelize.UUID,
@@ -77,17 +77,17 @@ module.exports = {
               type: Sequelize.STRING,
             },
             mode: {
-              type: Sequelize.ENUM("s", "m"),
-              defaultValue: "s",
+              type: Sequelize.ENUM('s', 'm'),
+              defaultValue: 's',
             },
             createdAt: {
-              type: "TIMESTAMP",
-              defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+              type: 'TIMESTAMP',
+              defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
               allowNull: false,
             },
             updatedAt: {
-              type: "TIMESTAMP",
-              defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+              type: 'TIMESTAMP',
+              defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
               allowNull: false,
             },
           },
@@ -97,7 +97,7 @@ module.exports = {
         );
 
         await queryInterface.createTable(
-          "poll_answers",
+          'poll_answers',
           {
             id: {
               type: Sequelize.UUID,
@@ -114,23 +114,23 @@ module.exports = {
               allowNull: false,
             },
             createdAt: {
-              type: "TIMESTAMP",
-              defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+              type: 'TIMESTAMP',
+              defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
               allowNull: false,
             },
             updatedAt: {
-              type: "TIMESTAMP",
-              defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
+              type: 'TIMESTAMP',
+              defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
               allowNull: false,
             },
             pollId: {
               type: Sequelize.UUID,
               references: {
-                model: "polls",
-                key: "id",
+                model: 'polls',
+                key: 'id',
               },
-              onUpdate: "CASCADE",
-              onDelete: "SET NULL",
+              onUpdate: 'CASCADE',
+              onDelete: 'SET NULL',
             },
           },
           {
@@ -138,8 +138,8 @@ module.exports = {
           }
         );
 
-        await queryInterface.bulkInsert("polls", polls, { transaction });
-        await queryInterface.bulkInsert("poll_answers", pollAnswers, {
+        await queryInterface.bulkInsert('polls', polls, { transaction });
+        await queryInterface.bulkInsert('poll_answers', pollAnswers, {
           transaction,
         });
       } catch (err) {

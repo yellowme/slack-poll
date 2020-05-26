@@ -1,11 +1,11 @@
 const request = require('supertest');
 const faker = require('faker');
-
-const createTestApplication = require('../../../../test/application');
+const app = require('../app');
+const { PollMode } = require('../app/poll');
+const createPoll = require('../services/createPoll');
 
 test('rejects with invalid verification token', async () => {
-  const { server } = await createTestApplication();
-
+  // Given
   const slackVerificationToken = faker.random.uuid();
   const expectedOption = faker.lorem.word();
   const userId = faker.random.uuid();
@@ -26,33 +26,27 @@ test('rejects with invalid verification token', async () => {
     }),
   };
 
-  const response = await request(server)
-    .post('/hook')
-    .send(requestBody);
+  // When
+  const response = await request(app).post('/hook').send(requestBody);
 
-  expect(response.status).toBe(401);
+  // Then
+  expect(response.status).toBe(403);
 });
 
 test('add poll answer by calling slack interactive components', async () => {
-  const { server, repositories } = await createTestApplication();
+  // Given
+  const poll = {
+    mode: PollMode.SINGLE,
+    owner: faker.random.uuid(),
+    options: [faker.lorem.word()],
+    question: faker.lorem.word(),
+  };
 
   const slackVerificationToken = 'slack_verification_token';
-  const expectedQuestion = faker.lorem.word();
-  const expectedOption = faker.lorem.word();
-  const slashCommand = `"${expectedQuestion}" "${expectedOption}" "${expectedOption}"`;
   const exctedUserId = faker.random.uuid();
-  const expectedSlackChannelId = faker.random.uuid();
+  const [option] = poll.options;
 
-  await request(server)
-    .post('/polls')
-    .send({
-      text: slashCommand,
-      token: slackVerificationToken,
-      user_id: exctedUserId,
-      channel_id: expectedSlackChannelId,
-    });
-
-  const [lastCreatedPoll] = await repositories.pollsRepository.find();
+  const createdPoll = await createPoll(poll);
 
   const requestBody = {
     payload: JSON.stringify({
@@ -60,62 +54,42 @@ test('add poll answer by calling slack interactive components', async () => {
       user: {
         id: exctedUserId,
       },
-      callback_id: lastCreatedPoll.id,
+      callback_id: createdPoll.id,
       actions: [
         {
-          value: expectedOption,
+          value: `${option}-0`,
         },
       ],
     }),
   };
 
-  const response = await request(server)
-    .post('/hook')
-    .send(requestBody);
+  // When
+  const response = await request(app).post('/hook').send(requestBody);
 
-  expect(response.status).toBe(201);
-
-  const pollAnswers = await repositories.pollAnswersRepository.find({
-    option: expectedOption,
-    owner: exctedUserId,
-  });
-
-  expect(pollAnswers.length).toBe(1);
-
-  const [lastPollAnswer] = pollAnswers;
-  expect(lastPollAnswer.option).toBe(expectedOption);
-  expect(lastPollAnswer.owner).toBe(exctedUserId);
-  expect(lastPollAnswer.poll).toBe(lastCreatedPoll.id);
+  // Then
+  expect(response.status).toBe(200);
 });
 
 test('deletes a poll', async () => {
-  const { server, repositories } = await createTestApplication();
+  // Given
+  const poll = {
+    mode: PollMode.SINGLE,
+    owner: faker.random.uuid(),
+    options: [faker.lorem.word()],
+    question: faker.lorem.word(),
+  };
 
   const slackVerificationToken = 'slack_verification_token';
-  const expectedQuestion = faker.lorem.word();
-  const expectedOption = faker.lorem.word();
-  const slashCommand = `"${expectedQuestion}" "${expectedOption}" "${expectedOption}"`;
-  const exctedUserId = faker.random.uuid();
-  const expectedSlackChannelId = faker.random.uuid();
 
-  await request(server)
-    .post('/polls')
-    .send({
-      text: slashCommand,
-      token: slackVerificationToken,
-      user_id: exctedUserId,
-      channel_id: expectedSlackChannelId,
-    });
-
-  const [lastCreatedPoll] = await repositories.pollsRepository.find();
+  const createdPoll = await createPoll(poll);
 
   const requestBody = {
     payload: JSON.stringify({
       token: slackVerificationToken,
       user: {
-        id: exctedUserId,
+        id: poll.owner,
       },
-      callback_id: lastCreatedPoll.id,
+      callback_id: createdPoll.id,
       actions: [
         {
           value: 'cancel-null',
@@ -124,35 +98,27 @@ test('deletes a poll', async () => {
     }),
   };
 
-  const response = await request(server)
-    .post('/hook')
-    .send(requestBody);
+  // When
+  const response = await request(app).post('/hook').send(requestBody);
 
+  // Then
   expect(response.status).toBe(200);
-
-  const poll = await repositories.pollsRepository.find();
-  expect(poll.length).toBe(0);
 });
 
 test('fails to create a poll response with invalid answer', async () => {
-  const { server, repositories } = await createTestApplication();
+  // Given
+  const poll = {
+    mode: PollMode.SINGLE,
+    owner: faker.random.uuid(),
+    options: [faker.lorem.word()],
+    question: faker.lorem.word(),
+  };
 
   const slackVerificationToken = 'slack_verification_token';
-  const invalidOption = faker.lorem.word();
-  const slashCommand = `"${faker.lorem.word()}" "${faker.lorem.word()}" "${faker.lorem.word()}"`;
   const exctedUserId = faker.random.uuid();
-  const expectedSlackChannelId = faker.random.uuid();
+  const invalidOption = faker.lorem.word();
 
-  await request(server)
-    .post('/polls')
-    .send({
-      text: slashCommand,
-      token: slackVerificationToken,
-      user_id: exctedUserId,
-      channel_id: expectedSlackChannelId,
-    });
-
-  const [lastCreatedPoll] = await repositories.pollsRepository.find();
+  const createdPoll = await createPoll(poll);
 
   const requestBody = {
     payload: JSON.stringify({
@@ -160,7 +126,7 @@ test('fails to create a poll response with invalid answer', async () => {
       user: {
         id: exctedUserId,
       },
-      callback_id: lastCreatedPoll.id,
+      callback_id: createdPoll.id,
       actions: [
         {
           value: invalidOption,
@@ -169,39 +135,21 @@ test('fails to create a poll response with invalid answer', async () => {
     }),
   };
 
-  const response = await request(server)
-    .post('/hook')
-    .send(requestBody);
+  // When
+  const response = await request(app).post('/hook').send(requestBody);
 
-  // 200 response for slack to display error message
+  // Then
   expect(response.status).toBe(200);
-
   expect(response.body.text).toBe(
     "Sorry, there's been an error. Try again later."
   );
 });
 
 test('fails to delete a poll with invalid id', async () => {
-  const { server, repositories } = await createTestApplication();
-
+  // Given
   const slackVerificationToken = 'slack_verification_token';
-  const expectedQuestion = faker.lorem.word();
-  const expectedOption = faker.lorem.word();
-  const slashCommand = `"${expectedQuestion}" "${expectedOption}" "${expectedOption}"`;
   const exctedUserId = faker.random.uuid();
-  const expectedSlackChannelId = faker.random.uuid();
-  const invalidPollId = faker.random.uuid();
-
-  await request(server)
-    .post('/polls')
-    .send({
-      text: slashCommand,
-      token: slackVerificationToken,
-      user_id: exctedUserId,
-      channel_id: expectedSlackChannelId,
-    });
-
-  await repositories.pollsRepository.find();
+  const invalidPollId = faker.lorem.word();
 
   const requestBody = {
     payload: JSON.stringify({
@@ -218,11 +166,10 @@ test('fails to delete a poll with invalid id', async () => {
     }),
   };
 
-  const response = await request(server)
-    .post('/hook')
-    .send(requestBody);
+  // When
+  const response = await request(app).post('/hook').send(requestBody);
 
-  // 200 response for slack to display error message
+  // Then
   expect(response.status).toBe(200);
   expect(response.body.text).toBe(
     "Sorry, there's been an error. Try again later."
@@ -230,34 +177,26 @@ test('fails to delete a poll with invalid id', async () => {
 });
 
 test('fails to delete a poll as not poll owner', async () => {
-  const { server, repositories } = await createTestApplication();
+  // Given
+  const poll = {
+    mode: PollMode.SINGLE,
+    owner: faker.random.uuid(),
+    options: [faker.lorem.word()],
+    question: faker.lorem.word(),
+  };
 
   const slackVerificationToken = 'slack_verification_token';
-  const expectedQuestion = faker.lorem.word();
-  const expectedOption = faker.lorem.word();
-  const slashCommand = `"${expectedQuestion}" "${expectedOption}" "${expectedOption}"`;
-  const exctedUserId = faker.random.uuid();
-  const notSameUserId = faker.random.uuid();
-  const expectedSlackChannelId = faker.random.uuid();
+  const invalidOwner = faker.random.uuid();
 
-  await request(server)
-    .post('/polls')
-    .send({
-      text: slashCommand,
-      token: slackVerificationToken,
-      user_id: exctedUserId,
-      channel_id: expectedSlackChannelId,
-    });
-
-  const [lastCreatedPoll] = await repositories.pollsRepository.find();
+  const createdPoll = await createPoll(poll);
 
   const requestBody = {
     payload: JSON.stringify({
       token: slackVerificationToken,
       user: {
-        id: notSameUserId,
+        id: invalidOwner,
       },
-      callback_id: lastCreatedPoll.id,
+      callback_id: createdPoll.id,
       actions: [
         {
           value: 'cancel-null',
@@ -266,13 +205,11 @@ test('fails to delete a poll as not poll owner', async () => {
     }),
   };
 
-  const response = await request(server)
-    .post('/hook')
-    .send(requestBody);
+  // When
+  const response = await request(app).post('/hook').send(requestBody);
 
   // 200 response for slack to display error message
   expect(response.status).toBe(200);
-
   expect(response.body.text).toBe(
     'Only the owner of the poll can remove this poll.'
   );

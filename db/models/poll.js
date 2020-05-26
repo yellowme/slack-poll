@@ -1,5 +1,5 @@
 function createPollModel(sequelize, DataTypes) {
-  return sequelize.define("polls", {
+  return sequelize.define('polls', {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
@@ -12,7 +12,6 @@ function createPollModel(sequelize, DataTypes) {
     },
     options: {
       type: DataTypes.ARRAY(DataTypes.TEXT),
-      allowNull: false,
     },
     owner: {
       type: DataTypes.STRING,
@@ -22,8 +21,8 @@ function createPollModel(sequelize, DataTypes) {
       type: DataTypes.STRING,
     },
     mode: {
-      type: DataTypes.ENUM("s", "m"),
-      defaultValue: "s",
+      type: DataTypes.ENUM('s', 'm'),
+      defaultValue: 's',
     },
   });
 }

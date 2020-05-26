@@ -6,7 +6,7 @@ const slack = require('../lib/slack');
 
 const router = express.Router();
 
-router.post('/', async (req, res) => {
+router.post('/', async (req, res, next) => {
   const { createPoll, updatePoll } = req.services;
 
   // slack slash command body
@@ -15,7 +15,7 @@ router.post('/', async (req, res) => {
 
   // validate verification token
   if (req.config.SLACK_VERIFICATION_TOKEN !== token)
-    return createError(403, 'invalid verification token');
+    return next(createError(403, 'invalid verification token'));
 
   // read poll from slack slash command
   const pollInput = parsePollString({ text, userId });
@@ -34,7 +34,7 @@ router.post('/', async (req, res) => {
     // return empty to prevent re-draw message in slack
     return res.status(201).send();
   } catch (err) {
-    return createError(500, req);
+    return next(createError(500, req));
   }
 });
 

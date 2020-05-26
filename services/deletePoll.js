@@ -3,11 +3,17 @@ const NotPollOwnerError = require('../app/NotPollOwnerError');
 const InvalidPollError = require('../app/InvalidPollError');
 
 module.exports = async function deletePoll(poll) {
-  const pollRecord = await sequelize.models.polls.findOne({
-    where: { id: poll.id },
-  });
+  let pollRecord = null;
 
-  if (!pollRecord) throw new InvalidPollError();
+  try {
+    pollRecord = await sequelize.models.polls.findOne({
+      where: { id: poll.id },
+    });
+  } catch (err) {
+    // console.log(err);
+    throw new InvalidPollError();
+  }
+
   if (pollRecord.owner !== poll.owner) throw new NotPollOwnerError();
 
   await pollRecord.destroy();

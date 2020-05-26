@@ -5,6 +5,6 @@ module.exports = async function updatePoll({ id, ...data }) {
     where: { id },
   });
 
-  const updatedPoll = await sequelize.models.polls.findOne({ id });
+  const updatedPoll = await sequelize.models.polls.findOne({ where: { id } });
   return updatedPoll.toJSON();
 };

@@ -1,24 +1,20 @@
-const Poll = require('../../../../test/factories/createPoll');
-const createTestDatabase = require('../../../../test/sequelize');
-const createPollsRepository = require('../../../../test/repositories/pollsRepository');
-const createCreatePoll = require('../createPoll');
-
-async function setupTest() {
-  const sequelize = await createTestDatabase();
-  const pollsRepository = createPollsRepository(sequelize);
-  const createPoll = createCreatePoll(pollsRepository);
-
-  return { createPoll };
-}
+const faker = require('faker');
+const { PollMode } = require('../../app/poll');
+const createPoll = require('../createPoll');
 
 test('creates single mode poll', async () => {
-  const { createPoll } = await setupTest();
+  // Given
+  const poll = {
+    mode: PollMode.SINGLE,
+    owner: faker.random.uuid(),
+    options: [faker.lorem.word()],
+    question: faker.lorem.word(),
+  };
 
-  const poll = Poll();
-
+  // When
   const createdPoll = await createPoll(poll);
 
-  expect(createdPoll.id).toBe(poll.id);
+  // Then
   expect(createdPoll.question).toBe(poll.question);
   expect(createdPoll.owner).toBe(poll.owner);
   expect(createdPoll.options).toEqual(poll.options);
@@ -26,15 +22,18 @@ test('creates single mode poll', async () => {
 });
 
 test('creates multiple mode poll', async () => {
-  const { createPoll } = await setupTest();
+  // Given
+  const poll = {
+    mode: PollMode.MULTIPLE,
+    owner: faker.random.uuid(),
+    options: [faker.lorem.word()],
+    question: faker.lorem.word(),
+  };
 
-  const poll = Poll({
-    mode: 'm',
-  });
-
+  // When
   const createdPoll = await createPoll(poll);
 
-  expect(createdPoll.id).toBe(poll.id);
+  // Then
   expect(createdPoll.question).toBe(poll.question);
   expect(createdPoll.owner).toBe(poll.owner);
   expect(createdPoll.options).toEqual(poll.options);

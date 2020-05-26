@@ -1,6 +1,8 @@
-class InvalidPollError extends Error {
-  constructor() {
-    super('Invalid Poll.');
+const AppError = require('./AppError');
+
+class InvalidPollError extends AppError {
+  constructor(description = 'Invalid Poll.') {
+    super('InvalidPollError', description);
   }
 }
 

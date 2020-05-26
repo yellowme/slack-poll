@@ -42,7 +42,7 @@ async function handlePollAnswerUpdate(req, res) {
       throw new InvalidPollOptionError(action.value);
 
     await createPollAnswer(currentPoll, {
-      pollId: currentPoll.id,
+      poll: currentPoll.id,
       option: action.value,
       owner: user.id,
     });
@@ -63,7 +63,7 @@ async function handlePollAnswerUpdate(req, res) {
   }
 }
 
-router.post('/', (req, res) => {
+router.post('/', (req, res, next) => {
   // slack interactive action request body
   // https://api.slack.com/reference/interaction-payloads/actions
   const { token, actions } = JSON.parse(req.body.payload);
@@ -71,7 +71,7 @@ router.post('/', (req, res) => {
 
   // Validate verification token
   if (req.config.SLACK_VERIFICATION_TOKEN !== token)
-    return createError(403, 'invalid verification token');
+    return next(createError(403, 'invalid verification token'));
 
   switch (action.value) {
     case 'cancel-null':

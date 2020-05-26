@@ -5,7 +5,7 @@ module.exports = async function createPollAnswer(poll, pollAnswer) {
   const userPollAnswers = await sequelize.models.pollAnswers.findAll({
     where: {
       owner: pollAnswer.owner,
-      pollId: pollAnswer.pollId,
+      poll: pollAnswer.poll,
     },
   });
 

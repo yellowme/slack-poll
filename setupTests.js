@@ -1,10 +1,31 @@
 // Mock enviroment
-jest.mock('../app/config.js', () => ({
+jest.mock('sequelize', () => {
+  const sequelize = jest.requireActual('sequelize');
+
+  function SequelizeMock() {
+    // eslint-disable-next-line no-new
+    return new sequelize.Sequelize('sqlite::memory:', {
+      logging: false,
+    });
+  }
+
+  return {
+    Sequelize: SequelizeMock,
+  };
+});
+
+jest.mock('./config.js', () => ({
+  SLACK_MESSAGE_ICON_EMOJIS: 'bar_chart',
   SLACK_VERIFICATION_TOKEN: 'slack_verification_token',
   SLACK_ACCESS_TOKEN: 'slack_access_token',
-  SLACK_APP_DISPLAY_NAME: 'Yellow Poll',
-  SLACK_MESSAGE_BAR_COLOR: '#ffd100',
-  SLACK_MESSAGE_ICON_EMOJIS: 'bar_chart',
-  PORT: 3000,
-  SLACK_BASE_URL: 'https://slack.com/api',
 }));
+
+jest.mock('./lib/slack.js', () => {
+  return {
+    chat: {
+      postMessage: jest.fn(() => ({
+        ts: Date.now(),
+      })),
+    },
+  };
+});

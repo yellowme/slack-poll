@@ -1,9 +1,9 @@
 const faker = require('faker');
 const { PollMode } = require('../../app/poll');
 const createPoll = require('../createPoll');
-const fetchPoll = require('../fetchPoll');
+const updatePoll = require('../updatePoll');
 
-test('returns a poll', async () => {
+test('updates polls timestamp', async () => {
   // Given
   const poll = {
     mode: PollMode.SINGLE,
@@ -14,9 +14,13 @@ test('returns a poll', async () => {
 
   const createdPoll = await createPoll(poll);
 
+  const timestamp = Date.now().toString();
+  createdPoll.timestamp = timestamp;
+
   // When
-  const samePoll = await fetchPoll(createdPoll);
+  const updatedPoll = await updatePoll(createdPoll);
 
   // Then
-  expect(samePoll.id).toBe(createdPoll.id);
+  expect(updatedPoll.id).toBe(createdPoll.id);
+  expect(updatedPoll.timestamp).toBe(timestamp);
 });

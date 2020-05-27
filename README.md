@@ -42,7 +42,7 @@ npm start
 Generating Migrations
 
 ```sh
-./node_modules/.bin/sequelize migration:generate --name <migration_name>
+yarn sequelize migration:generate --name <migration_name> --migrations-path app/infrastructure/sequelize/migrations
 ```
 
 Running daemon

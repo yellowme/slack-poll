@@ -1,56 +1,89 @@
 {
   "name": "slack-poll",
   "version": "1.0.0",
-  "description": "",
-  "main": "slackPoll.js",
+  "private": true,
   "license": "MIT",
   "scripts": {
-    "start": "node index.js",
-    "prestart": "npm run migrate",
+    "prestart": "yarn migrate",
+    "start": "node ./bin/www",
     "dev": "nodemon index.js",
-    "test": "jest --config jest.json",
-    "tunnel": "ngrok http 3000",
-    "migrate": "if [ $DATABASE_URL ]; then sequelize db:migrate --url $DATABASE_URL ; else echo; fi",
-    "lint": "eslint --ext .js,.jsx --ignore-pattern public .",
-    "format": "prettier *.js --write"
+    "test": "jest",
+    "migrate": "if [ $DATABASE_URL ]; then ./node_modules/.bin/sequelize db:migrate --url $DATABASE_URL --migrations-path db/migrations ; else echo; fi",
+    "lint": "eslint app/**/*.js --fix",
+    "format": "prettier app/**/*.js --write"
+  },
+  "dependencies": {
+    "@slack/interactive-messages": "^1.6.0",
+    "@slack/web-api": "^5.8.1",
+    "compression": "^1.7.4",
+    "cookie-parser": "~1.4.4",
+    "debug": "~2.6.9",
+    "dotenv": "^8.2.0",
+    "express": "~4.16.1",
+    "express-rate-limit": "^5.1.3",
+    "helmet": "^3.22.0",
+    "http-errors": "~1.6.3",
+    "jade": "~1.11.0",
+    "lodash.groupby": "^4.6.0",
+    "morgan": "~1.9.1",
+    "pg": "^8.2.1",
+    "pg-hstore": "^2.3.3",
+    "sequelize": "^5.21.9",
+    "sequelize-cli": "^5.5.1",
+    "sqlite3": "^4.2.0",
+    "uuid": "^8.1.0"
   },
   "engines": {
-    "node": "10.x"
+    "node": "12.x"
+  },
+  "jest": {
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/test/"
+    ],
+    "setupFiles": [
+      "./setupTests.js"
+    ],
+    "setupFilesAfterEnv": [
+      "./setupTestsAfterEnv.js"
+    ],
+    "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+      "/node_modules/",
+      "/test/",
+      "/db/",
+      "/bin/",
+      "/serializers/",
+      "/app.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    }
   },
   "lint-staged": {
     "*.{js,css,json,md}": [
       "prettier --write",
       "git add"
-    ],
-    "*.js": [
-      "eslint --fix",
-      "git add"
     ]
   },
-  "dependencies": {
-    "axios": "^0.18.0",
-    "dotenv": "^6.1.0",
-    "express": "^4.13.4",
-    "morgan": "^1.9.1",
-    "pg": "^7.7.1",
-    "pg-hstore": "^2.3.2",
-    "sequelize": "^4.41.2",
-    "sequelize-cli": "^5.4.0",
-    "sqlite3": "^4.0.4"
-  },
   "devDependencies": {
-    "eslint": "^5.3.0",
-    "eslint-config-airbnb-base": "^13.1.0",
-    "eslint-config-prettier": "^4.0.0",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-prettier": "^3.0.1",
-    "husky": "^1.3.1",
-    "jest": "^24.8.0",
-    "lint-staged": "^8.1.4",
-    "moxios": "^0.4.0",
-    "nodemon": "^1.18.7",
-    "prettier": "^1.16.4",
-    "sequelize-mock": "^0.10.2",
+    "eslint": "^7.0.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-prettier": "^3.1.3",
+    "faker": "^4.1.0",
+    "husky": "^4.2.5",
+    "jest": "^26.0.1",
+    "lint-staged": "^10.2.4",
+    "nodemon": "^2.0.4",
+    "prettier": "^2.0.5",
+    "sequelize-cli": "^5.5.1",
     "supertest": "^4.0.2"
   }
 }

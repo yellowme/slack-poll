@@ -19,7 +19,7 @@ Multi-Option poll -- add `-m` flag at the end
 To integrate into your Slack workspace, you will need to create a [Slack App](https://api.slack.com/apps) and configure
 
 - Interactive Components > Interactivity > Request URL (for the /hook Endpoint)
-- Slash Commands (for the /poll Endpoint)
+- Slash Commands (for the /polls Endpoint)
 - OAuth & Permissions > Scopes > Add permissions [`chat:write:bot`, `commands`, `reactions:write`]
 
 Initialize `.env` file with

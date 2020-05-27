@@ -4,10 +4,11 @@
   "private": true,
   "license": "MIT",
   "scripts": {
+    "prestart": "yarn migrate",
     "start": "node ./bin/www",
     "dev": "nodemon index.js",
     "test": "jest",
-    "migrate": "if [ $DATABASE_URL ]; then sequelize db:migrate --url $DATABASE_URL --migrations-path app/infrastructure/sequelize/migrations ; else echo; fi",
+    "migrate": "if [ $DATABASE_URL ]; then sequelize db:migrate --url $DATABASE_URL --migrations-path db/migrations ; else echo; fi",
     "lint": "eslint app/**/*.js --fix",
     "format": "prettier app/**/*.js --write"
   },
@@ -28,7 +29,8 @@
     "pg": "^8.2.1",
     "pg-hstore": "^2.3.3",
     "sequelize": "^5.21.9",
-    "sqlite3": "^4.2.0"
+    "sqlite3": "^4.2.0",
+    "uuid": "^8.1.0"
   },
   "engines": {
     "node": "12.x"

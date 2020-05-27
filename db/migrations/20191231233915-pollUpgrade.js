@@ -1,3 +1,5 @@
+const uuid = require('uuid').v4;
+
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const memo = {};
@@ -24,6 +26,7 @@ module.exports = {
       const poll = {
         question,
         options,
+        id: uuid(),
         owner: row.owner || '',
         timestamp: row.titleTs,
         mode: row.mode,
@@ -31,7 +34,7 @@ module.exports = {
         updatedAt: row.updatedAt,
       };
 
-      // Made easy to fine in answer relation
+      // Made easy to find in answer relation
       memo[row.id] = poll.id;
 
       return poll;
@@ -39,9 +42,10 @@ module.exports = {
 
     const pollAnswers = pollAnswerRecords.rows.map((row) => {
       return {
+        id: uuid(),
         option: row.answer,
         owner: row.userId,
-        pollId: memo[row.pollId],
+        poll: memo[row.pollId],
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
       };
@@ -67,7 +71,6 @@ module.exports = {
             },
             options: {
               type: Sequelize.ARRAY(Sequelize.TEXT),
-              allowNull: false,
             },
             owner: {
               type: Sequelize.STRING,
@@ -97,7 +100,7 @@ module.exports = {
         );
 
         await queryInterface.createTable(
-          'poll_answers',
+          'pollAnswers',
           {
             id: {
               type: Sequelize.UUID,
@@ -123,7 +126,7 @@ module.exports = {
               defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
               allowNull: false,
             },
-            pollId: {
+            poll: {
               type: Sequelize.UUID,
               references: {
                 model: 'polls',
@@ -139,7 +142,7 @@ module.exports = {
         );
 
         await queryInterface.bulkInsert('polls', polls, { transaction });
-        await queryInterface.bulkInsert('poll_answers', pollAnswers, {
+        await queryInterface.bulkInsert('pollAnswers', pollAnswers, {
           transaction,
         });
       } catch (err) {

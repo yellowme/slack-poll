@@ -1,5 +1,4 @@
 [
-  "zero",
   "one",
   "two",
   "three",
@@ -10,6 +9,7 @@
   "eight",
   "nine",
   "keycap_ten",
+  "zero",
   "hash",
   "keycap_star",
   "copyright",
